@@ -1,0 +1,56 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/python
+{
+	"name": "For Podman - Python 3",
+	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+	"build": {
+		"context": "..",
+		"dockerfile": "../Dockerfile"
+	},
+	// Features to add to the dev container. More info: https://containers.dev/features.
+	// "features": {},
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [],
+	// Use 'postCreateCommand' to run commands after the container is created.
+	// See https://medium.com/@guillem.riera/making-visual-studio-code-devcontainer-work-properly-on-rootless-podman-8d9ddc368b30
+	"runArgs": [
+		"--userns=keep-id:uid=1000,gid=1000"
+	],
+	"containerUser": "vscode",
+	"updateRemoteUserUID": true,
+	"containerEnv": {
+		"HOME": "/home/vscode"
+	},
+	"postCreateCommand": "bash ./.devcontainer/scripts/postCreate.sh",
+	"postStartCommand": "bash ./.devcontainer/scripts/postStart.sh",
+	"mounts": [],
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"charliermarsh.ruff",
+				"davidanson.vscode-markdownlint",
+				"editorconfig.editorconfig",
+				"github.copilot",
+				"mads-hartmann.bash-ide-vscode",
+				"mechatroner.rainbow-csv",
+				"ms-python.black-formatter",
+				"ms-python.python",
+				"ms-python.vscode-pylance",
+				"njpwerner.autodocstring",
+				"tamasfe.even-better-toml",
+			],
+			"settings": {
+				"python.formatting.provider": "ruff",
+				"python.analysis.completeFunctionParens": true,
+				"[python]": {
+					"editor.defaultFormatter": "ms-python.black-formatter",
+					"editor.formatOnSave": true
+				}
+			}
+		}
+	},
+	// Configure tool-specific properties.
+	// "customizations": {},
+	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+	// "remoteUser": "root"
+}

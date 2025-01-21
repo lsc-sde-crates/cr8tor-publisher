@@ -1,0 +1,21 @@
+[project]
+name = "cr8tor-publisher"
+version = "0.1.0"
+description = "Data publisher for LSC SDE for use with cr8tor"
+readme = "README.md"
+authors = [{ name = "vvcb", email = "vvcb.n1@gmail.com" }]
+requires-python = ">=3.13"
+dependencies = []
+
+[project.scripts]
+cr8tor-publisher = "cr8tor_publisher:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.1.0",
+    "ruff>=0.9.2",
+]
