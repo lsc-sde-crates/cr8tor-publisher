@@ -1,0 +1,32 @@
+{
+	"name": "python-uv",
+	"build": {
+		"context": "..",
+		"dockerfile": "Dockerfile"
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"charliermarsh.ruff",
+				"kevinrose.vsc-python-indent",
+				"ms-python.python",
+				"ms-python.vscode-pylance",
+				"ms-pyright.pyright"
+			],
+			"settings": {
+				"dotfiles.repository": "benjarvis18/dotfiles",
+				"dotfiles.targetPath": "~/dotfiles",
+				"dotfiles.installCommand": "install.sh",
+				"python.defaultInterpreterPath": "~/.venv/bin/python"
+			}			
+		}		
+	},
+	"postStartCommand": "uv sync",
+	"containerEnv": {
+		"DISPLAY": "dummy",
+		"PYTHONUNBUFFERED": "True",
+		"UV_LINK_MODE": "copy",
+		"UV_PROJECT_ENVIRONMENT": "/home/vscode/.venv"
+	},
+	"remoteUser": "vscode"
+}
