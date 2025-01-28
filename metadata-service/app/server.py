@@ -11,14 +11,7 @@ from pydantic import ValidationError  # Import ValidationError
 
 from . import auth, config, databricks, schema
 
-API_KEY_NAME = "access_token"
-
-SHOW_DOCS_ENVIRONMENT = ("local", "dev")  # explicit list of allowed envs
-
 app_config: dict[str, Any] = {"title": config.get_settings().app_name}
-
-if config.get_settings().environment not in SHOW_DOCS_ENVIRONMENT:
-    app_config["openapi_url"] = ""
 
 app = FastAPI(**app_config)
 
