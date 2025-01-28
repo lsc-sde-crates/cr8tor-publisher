@@ -1,4 +1,4 @@
-FROM python:3.12-slim
+FROM python:3.12-alpine
 
 ENV PYTHONUNBUFFERED=1
 
@@ -32,12 +32,13 @@ ENV PYTHONPATH=/app
 COPY ./pyproject.toml ./uv.lock /app/
 
 COPY ./app /app/app
+COPY ./secrets /app/secrets
 
 # Sync the project
 # Ref: https://docs.astral.sh/uv/guides/integration/docker/#intermediate-layers
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen
 
-EXPOSE 8000
+EXPOSE 8002
 
-CMD ["uvicorn", "app.server:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
+CMD ["uvicorn", "app.server:app", "--host", "0.0.0.0", "--port", "8002", "--workers", "4"]

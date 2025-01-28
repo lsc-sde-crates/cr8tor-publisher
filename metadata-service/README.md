@@ -18,3 +18,6 @@ Authentication is implemented through a static API key. The API key is stored as
 * Query Parameter - http://127.0.0.1:8000?access_token=ACCESSTOKEN
 * Header - header with the key ```access_token``` containing the token
 * Cooking - cookie with the key ```access_token``` containing the token
+
+# Troubleshooting
+uvicorn app.server:app --host 0.0.0.0 --port 8002 --workers 4

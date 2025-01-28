@@ -1,7 +1,7 @@
 {
-	"name": "python-uv",
+	"name": "metadata-service",
 	"build": {
-		"context": "..",
+		"context": ".",
 		"dockerfile": "Dockerfile"
 	},
 	"customizations": {
@@ -21,6 +21,11 @@
 			}			
 		}		
 	},
+	"runArgs": [
+		"--network", "microapps-network",
+        "--name","metadata-container"
+	],
+    "forwardPorts": [8002],
 	"postStartCommand": "uv sync",
 	"containerEnv": {
 		"DISPLAY": "dummy",
