@@ -1,7 +1,7 @@
 {
-	"name": "python-uv",
+	"name": "approval-service",
 	"build": {
-		"context": "..",
+		"context": ".",
 		"dockerfile": "Dockerfile"
 	},
 	"customizations": {
@@ -10,8 +10,7 @@
 				"charliermarsh.ruff",
 				"kevinrose.vsc-python-indent",
 				"ms-python.python",
-				"ms-python.vscode-pylance",
-				"ms-pyright.pyright"
+				"ms-python.vscode-pylance"
 			],
 			"settings": {
 				"dotfiles.repository": "benjarvis18/dotfiles",
@@ -21,10 +20,17 @@
 			}			
 		}		
 	},
+	"runArgs": [
+		"--network", "microapps-network",
+		"--name", "approval-container"
+	],
+    "forwardPorts": [8000],
 	"postStartCommand": "uv sync",
 	"containerEnv": {
 		"DISPLAY": "dummy",
 		"PYTHONUNBUFFERED": "True",
+		"METADATA_CONTAINER_NAME": "metadata-container",
+		"METADATA_CONTAINER_PORT": "8002",
 		"UV_LINK_MODE": "copy",
 		"UV_PROJECT_ENVIRONMENT": "/home/vscode/.venv"
 	},

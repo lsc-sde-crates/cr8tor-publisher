@@ -28,10 +28,14 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-install-project
 
 ENV PYTHONPATH=/app
+ENV APP_NAME="Test FastAPI AppxxDocker"
+ENV METADATA_CONTAINER_NAME = "metadata-container"
+ENV METADATA_CONTAINER_PORT = "8002"
 
 COPY ./pyproject.toml ./uv.lock /app/
 
 COPY ./app /app/app
+COPY ./secrets /app/secrets
 
 # Sync the project
 # Ref: https://docs.astral.sh/uv/guides/integration/docker/#intermediate-layers

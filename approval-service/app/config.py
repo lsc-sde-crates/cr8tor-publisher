@@ -1,21 +1,40 @@
 """Contains the configuration settings for the application."""
 
 from functools import lru_cache
+from pathlib import Path
 from typing import Annotated
 
-from fastapi import Depends
-from pydantic import Field
+from fastapi import Depends, HTTPException, status
+from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
     """Configuration settings for the application."""
 
-    api_key: str = Field(default="default_key")
     app_name: str = Field(default="My App")
     environment: str = Field(default="local")
     cookie_domain: str = Field(default="localhost")
-    model_config = SettingsConfigDict(env_file=".env", secrets_dir="secrets")
+    approval_service_api_key: str = Field(default="default_key")
+    metadata_service_api_key: str = Field(default="default_key")
+    metadata_container_name: str = Field(default="default-container-name")
+    metadata_container_port: str = Field(default="8000")
+    model_config = SettingsConfigDict(
+        # env_file=".env",
+        secrets_dir="secrets",
+        extra="ignore",
+    )
+
+    @classmethod
+    def get_secret(cls, secret_name: str) -> SecretStr:
+        """Dynamically retrieve the content of a secret."""
+        secret_dir = Path(str(cls.model_config.get("secrets_dir"))) / secret_name
+        if not secret_dir or not secret_dir.exists():
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Secret '{secret_name}' not found at {secret_dir}",
+            )
+        return SecretStr(secret_dir.read_text().strip())
 
 
 @lru_cache
