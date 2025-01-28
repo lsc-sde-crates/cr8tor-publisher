@@ -12,7 +12,7 @@ from fastapi.security.api_key import APIKeyHeader
 from . import config
 
 # the name of the API key in the header
-API_KEY_NAME = "api_key"
+API_KEY_NAME = "x-api-key"
 
 api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=False)
 

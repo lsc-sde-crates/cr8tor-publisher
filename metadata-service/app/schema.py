@@ -12,6 +12,7 @@ from pydantic import BaseModel, Field, HttpUrl
 
 class DataSourceConnection(BaseModel):
     name: str | None = None
+    type: str = Field(description="source type")
 
 
 class DatabricksSourceConnection(DataSourceConnection):
@@ -22,11 +23,14 @@ class DatabricksSourceConnection(DataSourceConnection):
     )
     catalog: str = Field(description="Unity catalog name")
     schema_name: str = Field(description="Schema name in UC")
-    table: str | None = Field(default=None, description="Target table name")
+    table: list[str] | None = Field(default=None, description="Target table names")
 
 
-class SourceAccessCredential(BaseModel):
-    provider: str = Field(description="Service providing the secrets e.g. KeyVault")
+class DatabricksSourceAccessCredential(BaseModel):
+    provider: str | None = Field(
+        default=None,
+        description="Service providing the secrets e.g. KeyVault",
+    )
     spn_clientid: str = Field(
         description="Key name in secrets provider to access spn clientid ",
     )

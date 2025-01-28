@@ -90,7 +90,7 @@ def handle_restapi_request(
 
 def get_metadata_restapi(
     source: schema.DatabricksSourceConnection,
-    credentials: schema.SourceAccessCredential,
+    credentials: schema.DatabricksSourceAccessCredential,
 ) -> dict[str, Any]:
     """Retrieve metadata from the Databricks REST API."""
     try:
@@ -121,6 +121,14 @@ def get_metadata_restapi(
             table_description = table.get("comment", "")
             columns = table.get("columns", [])
 
+            # Filter tables if access.source.table list is provided
+            if (
+                source.table
+                and len(source.table) > 0
+                and table_name not in source.table
+            ):
+                continue
+
             # Extract column metadata
             column_metadata_list = [
                 schema.ColumnMetadata(
@@ -150,7 +158,6 @@ def get_metadata_restapi(
 
         return dataset_metadata.model_dump()
 
-    # TODO: Check the exception handling
     except Exception as exp:
         raise HTTPException(
             status_code=getattr(

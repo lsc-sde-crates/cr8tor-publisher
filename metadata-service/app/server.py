@@ -60,7 +60,7 @@ async def process_metadata_request(
     source = None
     credentials = None
 
-    if "MyDatabricksConnection" in str(access.source):
+    if access.source.get("type") == "DatabricksSQL":
         source, credentials = validate_access_request_details(access)
         metadata = databricks.get_metadata_restapi(source, credentials)
     else:
@@ -75,17 +75,22 @@ async def process_metadata_request(
 
 def validate_access_request_details(
     access: schema.DataAccessContract,
-) -> tuple[schema.DatabricksSourceConnection, schema.SourceAccessCredential]:
+) -> tuple[schema.DatabricksSourceConnection, schema.DatabricksSourceAccessCredential]:
     try:
         source = schema.DatabricksSourceConnection(**access.source)
-        credentials = schema.SourceAccessCredential(**access.credentials)
+        credentials = schema.DatabricksSourceAccessCredential(**access.credentials)
     except ValidationError as exc:
-        detail_msg = "Schema validation failed."
-        if "missing" in str(exc):
-            detail_msg += " Missing required fields: " + ", ".join(
-                [str(loc) for error in exc.errors() for loc in error["loc"]],
-            )
-        print(detail_msg, " ", exc.errors())  # noqa: T201
+        detail_msg = "Schema validation failed: "
+        error_messages = []
+
+        # Collect all possible combinations of exc.errors().loc + exc.errors().msg with sequence number
+        for idx, error in enumerate(exc.errors(), start=1):
+            loc = " - ".join(str(l) for l in error["loc"])
+            msg = error["msg"]
+            error_messages.append(f"{idx}. {loc} - {msg}")
+        detail_msg = detail_msg + " " + "; ".join(error_messages)
+        print(detail_msg)  # noqa: T201
+
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=detail_msg,
