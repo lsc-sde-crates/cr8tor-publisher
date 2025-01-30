@@ -159,6 +159,7 @@ def get_metadata_restapi(
         return dataset_metadata.model_dump()
 
     except Exception as exp:
+        print(str(exp))
         raise HTTPException(
             status_code=getattr(
                 exp,
