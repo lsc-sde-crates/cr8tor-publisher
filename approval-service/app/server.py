@@ -78,7 +78,9 @@ async def process_metadata_request(
             detail=detail,
         ) from exc
     except httpx.RequestError:
+        detail ="Error connecting to the metadata service. Base url: " + url_base
+        print(detail)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Error connecting to the metadata service. Base url: " + url_base,
+            detail=detail,
         ) from None
