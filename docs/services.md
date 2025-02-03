@@ -6,4 +6,4 @@ has_children: true
 ---
 # Data Ingestion
 
-![Service Architecture](./services.png)
+![Service Architecture](./architecture.png)
