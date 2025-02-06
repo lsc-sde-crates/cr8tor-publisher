@@ -1,7 +1,7 @@
 {
 	"name": "approval-service",
 	"build": {
-		"context": ".",
+		"context": "..",
 		"dockerfile": "Dockerfile"
 	},
 	"customizations": {
@@ -29,10 +29,13 @@
 	"containerEnv": {
 		"DISPLAY": "dummy",
 		"PYTHONUNBUFFERED": "True",
+		"UV_LINK_MODE": "copy",
+		"UV_PROJECT_ENVIRONMENT": "/home/vscode/.venv",
+		"KEYVAULT_SECRETS_MNT_PATH": "./secrets",
 		"METADATA_CONTAINER_NAME": "metadata-container",
 		"METADATA_CONTAINER_PORT": "8002",
-		"UV_LINK_MODE": "copy",
-		"UV_PROJECT_ENVIRONMENT": "/home/vscode/.venv"
+		"PUBLISH_CONTAINER_NAME": "publish-container",
+		"PUBLISH_CONTAINER_PORT": "8003"
 	},
 	"remoteUser": "vscode"
 }

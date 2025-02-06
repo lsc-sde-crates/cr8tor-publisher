@@ -1,5 +1,6 @@
 """Contains the configuration settings for the application."""
 
+import os
 from functools import lru_cache
 from pathlib import Path
 from typing import Annotated
@@ -18,7 +19,7 @@ class Settings(BaseSettings):
     cookie_domain: str = Field(default="localhost")
     model_config = SettingsConfigDict(
         env_file=".env",
-        secrets_dir="secrets",
+        secrets_dir=os.getenv("KEYVAULT_SECRETS_MNT_PATH", "secrets"),
         extra="ignore",
     )
 

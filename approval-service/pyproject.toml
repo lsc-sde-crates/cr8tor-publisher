@@ -1,7 +1,7 @@
 [project]
-name = "python-dev-environment"
+name = "cr8tor-approval-service"
 version = "0.1.0"
-description = "Add your description here"
+description = "Python FastAPI app to serve as Approval Service for CR8TOR project"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [

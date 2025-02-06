@@ -1,12 +1,16 @@
 [project]
-name = "python-dev-environment"
+name = "cr8tor-publish-service"
 version = "0.1.0"
-description = "Add your description here"
+description = "Python FastAPI app to serve as Publish Service for CR8TOR project"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "cr8tor",
+    "databricks-sqlalchemy>=2.0.4",
+    "dlt[duckdb,filesystem]>=1.5.0",
     "fastapi>=0.115.6",
     "pydantic-settings>=2.7.1",
+    "requests>=2.32.3",
     "uvicorn>=0.34.0",
 ]
 
@@ -16,3 +20,6 @@ dev = [
     "pytest>=8.3.4",
     "ruff>=0.9.1",
 ]
+
+[tool.uv.sources]
+cr8tor = { git = "https://github.com/lsc-sde-crates/cr8tor.git", branch = "develop" }

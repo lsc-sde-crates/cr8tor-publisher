@@ -3,47 +3,39 @@
 
 from typing import Any
 
-from fastapi import FastAPI, HTTPException, Request, status
-from fastapi.encoders import jsonable_encoder
+from fastapi import FastAPI, HTTPException, status
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
 from pydantic import ValidationError  # Import ValidationError
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from . import auth, config, databricks, schema
+from . import auth, config, databricks, exception, schema
 
 app_config: dict[str, Any] = {"title": config.get_settings().app_name}
 
 app = FastAPI(**app_config)
 
-
-@app.exception_handler(RequestValidationError)
-async def validation_exception_handler(
-    request: Request,
-    exc: RequestValidationError,
-) -> JSONResponse:
-    """Handle validation errors and return a custom JSON response."""
-    detail_msg = "Invalid input provided. 'access' body needs to be a valid JSON object with 'source' and 'credentials' keys."
-
-    print("Validation error: ", detail_msg, " ", exc.errors())  # noqa: T201
-    return JSONResponse(
-        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-        content=jsonable_encoder(
-            {
-                "detail": detail_msg,
-            },
-        ),
-    )
+# Register exception handlers
+app.add_exception_handler(
+    RequestValidationError,
+    exception.validation_exception_handler,
+)
+app.add_exception_handler(HTTPException, exception.http_exception_handler)
+app.add_exception_handler(Exception, exception.global_exception_handler)
+app.add_exception_handler(
+    StarletteHTTPException,
+    exception.starlette_http_exception_handler,
+)
 
 
 @app.post("/metadata/project")
 async def metadata_project(
-    access: schema.DataAccessContract,
+    access_payload: schema.DataAccessContract,
     _: auth.AuthDependency,
-) -> dict[str, Any]:
+) -> schema.SuccessResponse:
     """Endpoint to obtain the metadata from the source database.
 
     Args:
-        access: Endpoint accepts 'access' file from ro-crate, in json format
+        access_payload: Endpoint accepts 'access' file from ro-crate, in json format
         _: Authentication dependency
 
     Returns:
@@ -51,12 +43,25 @@ async def metadata_project(
         On Failure, returns the error message
 
     """
-    return await process_metadata_request(access)
+    res = await process_metadata_request(access_payload)
+    return schema.SuccessResponse(
+        status="success",
+        payload=res,
+    )
 
 
 async def process_metadata_request(
     access: schema.DataAccessContract,
 ) -> dict[str, Any]:
+    """Process the metadata request based on the access details.
+
+    Args:
+        access: DataAccessContract containing source and credentials.
+
+    Returns:
+        A dictionary containing the metadata.
+
+    """
     source = None
     credentials = None
 
@@ -76,6 +81,18 @@ async def process_metadata_request(
 def validate_access_request_details(
     access: schema.DataAccessContract,
 ) -> tuple[schema.DatabricksSourceConnection, schema.DatabricksSourceAccessCredential]:
+    """Validate the access request details and return the source and credentials.
+
+    Args:
+        access: DataAccessContract containing source and credentials.
+
+    Returns:
+        A tuple containing the Databricks source connection and access credentials.
+
+    Raises:
+        HTTPException: If the schema validation fails.
+
+    """
     try:
         source = schema.DatabricksSourceConnection(**access.source)
         credentials = schema.DatabricksSourceAccessCredential(**access.credentials)

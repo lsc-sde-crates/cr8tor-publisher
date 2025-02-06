@@ -1,4 +1,4 @@
-"""Contains the configuration settings for the application."""
+"""Functions related to Databricks API."""
 
 import base64
 import json

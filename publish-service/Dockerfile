@@ -1,8 +1,22 @@
 FROM python:3.12-slim
 
-ENV PYTHONUNBUFFERED=1
-
+# Set the working directory
 WORKDIR /app/
+
+# Target storage accounts where the output data will be stored are mounted at K8S pod level
+#  We need to set the environment variables to the mounted paths
+#  There are 2 storage accounts: one for LSC and one for NW
+#  Each storage account has 2 containers: one for staging and one for production output
+# The mounted paths are at storage account level
+ENV TARGET_STORAGE_ACCOUNT_LSC_SDE_MNT_PATH="./outputs/lsc-sde"
+ENV TARGET_STORAGE_ACCOUNT_NW_SDE_MNT_PATH="./outputs/nw-sde"
+
+# Keyvault secrets are mounted at K8S pod level
+ENV KEYVAULT_SECRETS_MNT_PATH="./secrets"
+
+# Working locally, we store secrets in a secrets folder.
+# !!! REMOVE/COMMENT THIS LINE WHEN DEPLOYING !!!
+COPY ./secrets ${KEYVAULT_SECRETS_MNT_PATH}
 
 # Install uv
 # Ref: https://docs.astral.sh/uv/guides/integration/docker/#installing-uv
@@ -20,14 +34,18 @@ ENV UV_COMPILE_BYTECODE=1
 # Ref: https://docs.astral.sh/uv/guides/integration/docker/#caching
 ENV UV_LINK_MODE=copy
 
+# ensures that the python output i.e. the stdout and stderr streams 
+# are sent straight to terminal (e.g. your container log) without being first buffered
+ENV PYTHONUNBUFFERED=1
+ 
+ENV PYTHONPATH=/app
+
 # Install dependencies
 # Ref: https://docs.astral.sh/uv/guides/integration/docker/#intermediate-layers
 RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     uv sync --frozen --no-install-project
-
-ENV PYTHONPATH=/app
 
 COPY ./pyproject.toml ./uv.lock /app/
 
@@ -38,6 +56,6 @@ COPY ./app /app/app
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen
 
-EXPOSE 8000
+EXPOSE 8003
 
-CMD ["uvicorn", "app.server:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
+CMD ["uvicorn", "app.server:app", "--host", "0.0.0.0", "--port", "8003", "--workers", "4"]

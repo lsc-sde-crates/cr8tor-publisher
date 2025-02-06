@@ -1,5 +1,7 @@
-"""Contains the configuration settings for the application."""
+#!/usr/bin/env python3
+"""Contains the configuration settings for the FastAPI application."""
 
+import os
 from functools import lru_cache
 from pathlib import Path
 from typing import Annotated
@@ -17,11 +19,14 @@ class Settings(BaseSettings):
     cookie_domain: str = Field(default="localhost")
     approval_service_api_key: str = Field(default="default_key")
     metadata_service_api_key: str = Field(default="default_key")
+    publish_service_api_key: str = Field(default="default_key")
     metadata_container_name: str = Field(default="default-container-name")
     metadata_container_port: str = Field(default="8000")
+    publish_container_name: str = Field(default="default-container-name")
+    publish_container_port: str = Field(default="8000")
     model_config = SettingsConfigDict(
-        # env_file=".env",
-        secrets_dir="secrets",
+        env_file=".env",
+        secrets_dir=os.getenv("KEYVAULT_SECRETS_MNT_PATH", "secrets"),
         extra="ignore",
     )
 

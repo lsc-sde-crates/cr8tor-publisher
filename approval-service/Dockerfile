@@ -1,8 +1,19 @@
 FROM python:3.12-slim
 
-ENV PYTHONUNBUFFERED=1
-
+# Set the working directory
 WORKDIR /app/
+
+# Keyvault secrets are mounted at K8S pod level
+ENV KEYVAULT_SECRETS_MNT_PATH="./secrets"
+
+# Working locally, we store secrets in a secrets folder.
+# !!! REMOVE/COMMENT THIS LINE WHEN DEPLOYING !!!
+COPY ./secrets ${KEYVAULT_SECRETS_MNT_PATH}
+
+ENV METADATA_CONTAINER_NAME="metadata"
+ENV METADATA_CONTAINER_PORT="8002"
+ENV PUBLISH_CONTAINER_NAME="publish-container"
+ENV PUBLISH_CONTAINER_PORT="8003"
 
 # Install uv
 # Ref: https://docs.astral.sh/uv/guides/integration/docker/#installing-uv
@@ -20,6 +31,12 @@ ENV UV_COMPILE_BYTECODE=1
 # Ref: https://docs.astral.sh/uv/guides/integration/docker/#caching
 ENV UV_LINK_MODE=copy
 
+# ensures that the python output i.e. the stdout and stderr streams 
+# are sent straight to terminal (e.g. your container log) without being first buffered
+ENV PYTHONUNBUFFERED=1
+ 
+ENV PYTHONPATH=/app
+
 # Install dependencies
 # Ref: https://docs.astral.sh/uv/guides/integration/docker/#intermediate-layers
 RUN --mount=type=cache,target=/root/.cache/uv \
@@ -27,15 +44,9 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     uv sync --frozen --no-install-project
 
-ENV PYTHONPATH=/app
-ENV APP_NAME="Test FastAPI AppxxDocker"
-ENV METADATA_CONTAINER_NAME = "metadata-container"
-ENV METADATA_CONTAINER_PORT = "8002"
-
 COPY ./pyproject.toml ./uv.lock /app/
 
 COPY ./app /app/app
-COPY ./secrets /app/secrets
 
 # Sync the project
 # Ref: https://docs.astral.sh/uv/guides/integration/docker/#intermediate-layers
