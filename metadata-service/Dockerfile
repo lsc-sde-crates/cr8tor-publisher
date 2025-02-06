@@ -6,10 +6,6 @@ WORKDIR /app/
 # Keyvault secrets are mounted at K8S pod level
 ENV KEYVAULT_SECRETS_MNT_PATH="./secrets"
 
-# Working locally, we store secrets in a secrets folder.
-# !!! REMOVE/COMMENT THIS LINE WHEN DEPLOYING !!!
-COPY ./secrets ${KEYVAULT_SECRETS_MNT_PATH}
-
 # Install uv
 # Ref: https://docs.astral.sh/uv/guides/integration/docker/#installing-uv
 COPY --from=ghcr.io/astral-sh/uv:0.5.11 /uv /uvx /bin/

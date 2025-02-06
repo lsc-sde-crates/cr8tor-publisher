@@ -6,10 +6,6 @@ WORKDIR /app/
 # Keyvault secrets are mounted at K8S pod level
 ENV KEYVAULT_SECRETS_MNT_PATH="./secrets"
 
-# Working locally, we store secrets in a secrets folder.
-# !!! REMOVE/COMMENT THIS LINE WHEN DEPLOYING !!!
-COPY ./secrets ${KEYVAULT_SECRETS_MNT_PATH}
-
 ENV METADATA_CONTAINER_NAME="metadata"
 ENV METADATA_CONTAINER_PORT="8002"
 ENV PUBLISH_CONTAINER_NAME="publish-container"
