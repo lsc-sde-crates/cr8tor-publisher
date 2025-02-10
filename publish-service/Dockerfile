@@ -1,5 +1,8 @@
 FROM python:3.12-slim
 
+# Install Git (required for fetching cr8tor from Git repositories)
+RUN apt-get update && apt-get install -y git
+
 # Set the working directory
 WORKDIR /app/
 
@@ -16,7 +19,7 @@ ENV KEYVAULT_SECRETS_MNT_PATH="./secrets"
 
 # Install uv
 # Ref: https://docs.astral.sh/uv/guides/integration/docker/#installing-uv
-COPY --from=ghcr.io/astral-sh/uv:0.5.11 /uv /uvx /bin/
+COPY --from=ghcr.io/astral-sh/uv:0.5.29 /uv /uvx /bin/
 
 # Place executables in the environment at the front of the path
 # Ref: https://docs.astral.sh/uv/guides/integration/docker/#using-the-environment
@@ -39,18 +42,19 @@ ENV PYTHONPATH=/app
 # Install dependencies
 # Ref: https://docs.astral.sh/uv/guides/integration/docker/#intermediate-layers
 RUN --mount=type=cache,target=/root/.cache/uv \
-    --mount=type=bind,source=uv.lock,target=uv.lock \
+    --mount=type=bind,source=uv.lock,target=uv.lock \   
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
-    uv sync --frozen --no-install-project
+    uv sync --frozen --no-install-project --no-dev
 
 COPY ./pyproject.toml ./uv.lock /app/
 
 COPY ./app /app/app
+COPY ./secrets /app/secrets
 
 # Sync the project
 # Ref: https://docs.astral.sh/uv/guides/integration/docker/#intermediate-layers
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen
+    uv sync --frozen --no-dev
 
 EXPOSE 8003
 
