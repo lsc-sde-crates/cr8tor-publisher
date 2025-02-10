@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "publish.name" . }}
+spec:
+  replicas: {{ .Values.publishService.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      serviceAccountName: {{ include "publish.name" . }}
+      nodeSelector:
+        {{- toYaml .Values.publishService.nodeSelector | nindent 8 }}
+      tolerations:
+        {{- toYaml .Values.publishService.tolerations | nindent 8 }}
+        
+      volumes:
+      {{ if .Values.publishService.volumes }}
+      {{ toYaml .Values.publishService.volumes | nindent 6 }}
+      {{ end }}
+
+      containers:
+      - name: controller
+        image: {{ .Values.publishService.image }}
+        env:
+        - name: NAMESPACE
+          value: {{ .Release.Namespace }}
+        {{ if .Values.publishService.env }}
+        {{ toYaml .Values.publishService.env | nindent 8 }}
+        {{ end }}
+        
+        volumeMounts:
+        {{ if .Values.publishService.volumeMounts }}
+        {{ toYaml .Values.publishService.volumeMounts | nindent 8 }}
+        {{ end }}
+          
+        resources:
+          {{- toYaml .Values.publishService.resources | nindent 10 }}

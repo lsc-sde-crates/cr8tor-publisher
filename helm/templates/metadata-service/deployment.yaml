@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "metadata.name" . }}
+spec:
+  replicas: {{ .Values.metadataService.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      serviceAccountName: {{ include "metadata.name" . }}
+      nodeSelector:
+        {{- toYaml .Values.metadataService.nodeSelector | nindent 8 }}
+      tolerations:
+        {{- toYaml .Values.metadataService.tolerations | nindent 8 }}
+        
+      volumes:
+      {{ if .Values.metadataService.volumes }}
+      {{ toYaml .Values.metadataService.volumes | nindent 6 }}
+      {{ end }}
+
+      containers:
+      - name: controller
+        image: {{ .Values.metadataService.image }}
+        env:
+        - name: NAMESPACE
+          value: {{ .Release.Namespace }}
+        {{ if .Values.metadataService.env }}
+        {{ toYaml .Values.metadataService.env | nindent 8 }}
+        {{ end }}
+        
+        volumeMounts:
+        {{ if .Values.metadataService.volumeMounts }}
+        {{ toYaml .Values.metadataService.volumeMounts | nindent 8 }}
+        {{ end }}
+          
+        resources:
+          {{- toYaml .Values.metadataService.resources | nindent 10 }}

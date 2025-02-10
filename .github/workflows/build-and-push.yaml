@@ -1,0 +1,52 @@
+name: Docker build and push
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+    - 'main'
+    - 'issues/sjt/helm-charts-1576-1578-1574-1834'
+
+jobs:
+  buildandpush:
+    uses: lsc-sde/lsc-sde/.github/workflows/ghcr-release.yaml@main
+    with:
+      imageName: cr8tor-approval-service
+      directory: products/sde/data-ingestion/cr8tor-publisher/approval-service
+      platforms: '["amd64"]'
+      # yamlPath: cr8tor_approval_service
+    secrets: inherit
+  
+  helm_package:
+    uses: lsc-sde/lsc-sde/.github/workflows/helm-package.yaml@main
+    needs: 
+    - buildandpush
+    with:
+      symver: ${{ needs.buildandpush.outputs.GitVersion_SemVer }}
+      directory: products/sde/data-ingestion/cr8tor-publisher
+      subdirectory: "/helm"
+    secrets: inherit
+
+  update-helm-yaml:
+    uses: lsc-sde/lsc-sde/.github/workflows/update-yaml.yaml@main
+    needs: 
+    - buildandpush
+    - helm_package
+    with:
+      repository: lsc-sde/iac-flux-lscsde
+      path: "core/helm-config.yaml"
+      yamlPath: ".components.cr8tor.chart_version"
+      newValue: "${{ needs.buildandpush.outputs.GitVersion_SemVer }}"
+    secrets: inherit
+
+  # update-flux-yaml:
+  #   uses: lsc-sde/lsc-sde/.github/workflows/update-yaml.yaml@main
+  #   needs: 
+  #   - buildandpush
+  #   - update-helm-yaml
+  #   with:
+  #     repository: lsc-sde/iac-flux-lscsde
+  #     path: "core/flux-config.yaml"
+  #     yamlPath: ".components.cr8tor.repository.branch"
+  #     newValue: "release/${{ needs.buildandpush.outputs.GitVersion_SemVer }}"
+  #   secrets: inherit
