@@ -17,7 +17,7 @@ metadataService:
   volumeMounts: []
   env: []
   resources: {}
-  
+
 publishService:
   replicas: 1
   image: lscsde/cr8tor-publish-service:latest
@@ -27,3 +27,4 @@ publishService:
   volumeMounts: []
   env: []
   resources: {}
+  
