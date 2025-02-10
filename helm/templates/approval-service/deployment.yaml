@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "approval.name" . }}
+spec:
+  replicas: {{ .Values.approvalService.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      serviceAccountName: {{ include "approval.name" . }}
+      nodeSelector:
+        {{- toYaml .Values.approvalService.nodeSelector | nindent 8 }}
+      tolerations:
+        {{- toYaml .Values.approvalService.tolerations | nindent 8 }}
+        
+      volumes:
+      {{ if .Values.approvalService.volumes }}
+      {{ toYaml .Values.approvalService.volumes | nindent 6 }}
+      {{ end }}
+
+      containers:
+      - name: controller
+        image: {{ .Values.approvalService.image }}
+        env:
+        - name: NAMESPACE
+          value: {{ .Release.Namespace }}
+        {{ if .Values.approvalService.env }}
+        {{ toYaml .Values.approvalService.env | nindent 8 }}
+        {{ end }}
+        
+        volumeMounts:
+        {{ if .Values.approvalService.volumeMounts }}
+        {{ toYaml .Values.approvalService.volumeMounts | nindent 8 }}
+        {{ end }}
+          
+        resources:
+          {{- toYaml .Values.approvalService.resources | nindent 10 }}

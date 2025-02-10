@@ -1,0 +1,29 @@
+approvalService:
+  replicas: 1
+  image: lscsde/cr8tor-approval-service:latest
+  nodeSelector: {}
+  tolerations: []
+  volumes: []
+  volumeMounts: []
+  env: []
+  resources: {}
+
+metadataService:
+  replicas: 1
+  image: lscsde/cr8tor-metadata-service:latest
+  nodeSelector: {}
+  tolerations: []
+  volumes: []
+  volumeMounts: []
+  env: []
+  resources: {}
+  
+publishService:
+  replicas: 1
+  image: lscsde/cr8tor-publish-service:latest
+  nodeSelector: {}
+  tolerations: []
+  volumes: []
+  volumeMounts: []
+  env: []
+  resources: {}
