@@ -7,6 +7,10 @@ on:
     - 'main'
     - 'issues/sjt/helm-charts-1576-1578-1574-1834'
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   buildandpush:
     uses: lsc-sde/lsc-sde/.github/workflows/ghcr-release.yaml@main
