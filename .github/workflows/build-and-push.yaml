@@ -53,6 +53,7 @@ jobs:
       yamlPath: ".components.cr8tor.chart_version"
       newValue: "${{ needs.buildandpush.outputs.GitVersion_SemVer }}"
     secrets: inherit
+    
 
   # update-flux-yaml:
   #   uses: lsc-sde/lsc-sde/.github/workflows/update-yaml.yaml@main
