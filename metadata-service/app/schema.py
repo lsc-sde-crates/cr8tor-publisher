@@ -23,6 +23,7 @@ class DatabricksSourceConnection(DataSourceConnection):
     """Model for Databricks source connection."""
 
     host_url: HttpUrl = Field(description="dbs workspace URL")
+    http_path: str = Field(description="http path to the db cluster")
     port: int = Field(
         default=443,
         description="Port for the db cluster (defaults to 443)",
