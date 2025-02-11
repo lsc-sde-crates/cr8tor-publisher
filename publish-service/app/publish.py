@@ -6,10 +6,13 @@ from pathlib import Path
 
 from bagit import generate_manifest_lines
 
-from . import schema, utils
+from . import config, schema, utils
 
 
-async def data_publish(project_payload: schema.DataPublishContract) -> dict:
+async def data_publish(
+    project_payload: schema.DataPublishContract,
+    log: config.logging.Logger,
+) -> dict:
     """Publishes data from staging to production storage account.
 
     Args:
@@ -19,6 +22,8 @@ async def data_publish(project_payload: schema.DataPublishContract) -> dict:
         dict: A dictionary containing the checksums of the published data.
 
     """
+    log.info("Publishing data files from staging to production...")
+
     staging_target_path, production_target_path, storage_mount_path = (
         utils.get_target_paths(
             project_payload,
@@ -28,10 +33,12 @@ async def data_publish(project_payload: schema.DataPublishContract) -> dict:
     production_target_path.mkdir(parents=True, exist_ok=True)
 
     # Collect stored file paths
+    log.info("Collect stored file paths...")
     files = utils.collect_stored_file_paths(staging_target_path)
 
     # Move files to production
     for file in files:
+        log.info("Move file %s", str(file))
         relative_path = file.relative_to(staging_target_path)
         destination_path = production_target_path / relative_path
 
@@ -43,19 +50,21 @@ async def data_publish(project_payload: schema.DataPublishContract) -> dict:
             file.rename(destination_path)
         except OSError as e:
             error_message = f"Failure moving file from staging to production: {e}"
-            print(error_message)
+            log.exception(error_message)
             raise OSError(error_message) from e
 
     # Generate checksums for files in production
+    log.info("Generate checksums...")
     checksums = generate_checksums(production_target_path)
 
     # Remove staging directory after successful move to production
     try:
         if Path.exists(staging_target_path):
+            log.info("Remove staging directory...")
             shutil.rmtree(staging_target_path)
     except OSError as e:
         error_message = f"Failure clearing staging directory: {e}"
-        print(error_message)
+        log.exception(error_message)
         raise OSError(error_message) from e
 
     # Return checksums

@@ -91,10 +91,12 @@ def handle_restapi_request(
 def get_metadata_restapi(
     source: schema.DatabricksSourceConnection,
     credentials: schema.DatabricksSourceAccessCredential,
+    log: config.logging.Logger,    
 ) -> dict[str, Any]:
     """Retrieve metadata from the Databricks REST API."""
     try:
         # Retrieve the access token
+        log.info("Retrieving access token ...")
         access_token = get_access_token(
             str(source.host_url),
             str(credentials.spn_clientid),
@@ -103,10 +105,12 @@ def get_metadata_restapi(
         headers = {"Authorization": f"Bearer {access_token}"}
 
         # Retrieve schema description
+        log.info("Retrieving Unity Catalog schema details ...")
         url = f"{source.host_url}/api/2.1/unity-catalog/schemas/{source.catalog}.{source.schema_name}"
         schema_details = handle_restapi_request(url, headers, {})
 
         # Retrieve tables in the schema
+        log.info("Retrieving Unity Catalog tables details ...")
         url = f"{source.host_url}/api/2.1/unity-catalog/tables"
         params = {
             "catalog_name": source.catalog,
@@ -115,6 +119,7 @@ def get_metadata_restapi(
         tables = handle_restapi_request(url, headers, params, "tables", paginate=True)
 
         # Extract tables and their columns
+        log.info("Parsing values to output model...")
         table_metadata_list = []
         for table in tables:
             table_name = table.get("name", "uknown_table")
@@ -159,7 +164,7 @@ def get_metadata_restapi(
         return dataset_metadata.model_dump()
 
     except Exception as exp:
-        print(str(exp))
+        log.exception(str(exp))
         raise HTTPException(
             status_code=getattr(
                 exp,

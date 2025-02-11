@@ -7,14 +7,17 @@ from fastapi import FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from . import auth, config, dlt, publish, schema, exception
+from . import auth, config, dlt, exception, publish, schema
 
 app_config: dict[str, Any] = {"title": config.get_settings().app_name}
 
 app = FastAPI(**app_config)
 
 # Register exception handlers
-app.add_exception_handler(RequestValidationError, exception.validation_exception_handler)
+app.add_exception_handler(
+    RequestValidationError,
+    exception.validation_exception_handler,
+)
 app.add_exception_handler(HTTPException, exception.http_exception_handler)
 app.add_exception_handler(Exception, exception.global_exception_handler)
 app.add_exception_handler(
@@ -39,7 +42,13 @@ async def datapublish_package(
         On Failure, returns the error message
 
     """
-    res = await dlt.dlt_data_retrieve(access_payload)
+    log = config.setup_logger(f"PublishService Project {access_payload.project_name}")
+    log.info("Publishing data files from staging to production ...")
+    log.info("Project: %s", access_payload.project_name)
+    log.info("Project start time: %s", access_payload.project_start_time)
+    log.info("Project destination: %s", access_payload.destination_type)
+
+    res = await dlt.dlt_data_retrieve(access_payload, log)
     return schema.SuccessResponse(
         status="success",
         payload=res,
@@ -62,7 +71,13 @@ async def datapublish_publish(
         On Failure, returns the error message
 
     """
-    res = await publish.data_publish(project_payload)
+    log = config.setup_logger("PublishService Project %s", project_payload.project_name)
+    log.info("Publishing data files from staging to production ...")
+    log.info("Project: %s", project_payload.project_name)
+    log.info("Project start time: %s", project_payload.project_start_time)
+    log.info("Project destination: %s", project_payload.destination_type)
+
+    res = await publish.data_publish(project_payload, log)
 
     return schema.SuccessResponse(
         status="success",

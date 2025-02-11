@@ -6,6 +6,9 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Annotated
 
+import logging
+from sys import stdout
+
 from fastapi import Depends, HTTPException, status
 from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -54,3 +57,23 @@ def get_settings() -> Settings:
 
 
 SettingsDependency = Annotated[Settings, Depends(get_settings)]
+
+# Configure logging
+def setup_logger(name: str) -> logging.Logger:
+    """Set up a logger with the specified name.
+
+    Args:
+        name (str): The name of the logger.
+
+    Returns:
+        logging.Logger: Configured logger instance.
+
+    """
+    handler = logging.StreamHandler(stdout)
+    handler.setLevel(logging.INFO)
+    formatter = logging.Formatter("[%(asctime)s] %(name)s [%(levelname)s] %(message)s")
+    handler.setFormatter(formatter)
+
+    logger = logging.Logger(name)
+    logger.addHandler(handler)
+    return logger
