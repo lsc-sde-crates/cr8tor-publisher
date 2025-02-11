@@ -1,5 +1,5 @@
 {
-	"name": "python-uv",
+	"name": "metadata-container-dev",
 	"build": {
 		"context": "..",
 		"dockerfile": "Dockerfile"
@@ -22,7 +22,7 @@
 	},
 	"runArgs": [
 		"--network", "microapps-network",
-        "--name","metadata-container"
+        "--name","metadata-container-dev"
 	],
     "forwardPorts": [8002],
 	"postStartCommand": "uv sync",

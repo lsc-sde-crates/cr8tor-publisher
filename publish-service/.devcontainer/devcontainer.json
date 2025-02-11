@@ -22,7 +22,7 @@
 	},
 	"runArgs": [
 		"--network", "microapps-network",
-        "--name","publish-container"
+        "--name","publish-container-dev"
 	],
     "forwardPorts": [8003],
     "postStartCommand": "uv sync",
