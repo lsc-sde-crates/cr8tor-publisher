@@ -1,20 +1,26 @@
-# Template FastAPI Application
+# Cr8tor Publish Service
 
-## Additional Settings
-In addition to the .env file, the following secrets are needed:
+The microservice is part of three microservices that support cr8tor solution. The Publish Service is based on FastAPI application and its key activities are:
+1) retrieving the data from the source database, here Databricks Unity Catalog. Data is stored in the staging container. 
+2) publishing the data to target production container.
 
-* api_key
+The microservice has following endpoints:
+1) POST data-publish/package
+2) POST data-publish/publish
 
-These should be created as files in the secrets folder e.g. secrets/api_key would contain the API key value:
+## Settings
 
-```
-myapikey
-```
+Enviornment variables required:
+* TARGET_STORAGE_ACCOUNT_LSC_SDE_MNT_PATH, default = ./outputs/lsc-sde
+* TARGET_STORAGE_ACCOUNT_NW_SDE_MNT_PATH, default = ./outputs/nw-sde
+* KEYVAULT_SECRETS_MNT_PATH, default = ./secrets
+   
+The authentication is static API key based and requires a secret
+* publish_service_api_key 
+
+stored in the KeyVault. When working locally, the secret file should be stored under KEYVAULT_SECRETS_MNT_PATH folder, e.g. e.g. secrets/publish_service_api_key.
 
 ## Authentication
 
-Authentication is implemented through a static API key. The API key is stored as an environment variable (API_KEY) and validated for each request. The key can be provided using the following methods:
-
-* Query Parameter - http://127.0.0.1:8000?access_token=ACCESSTOKEN
+Authentication is implemented through a static API key. The API key is stored as an environment variable (publish_service_api_key) and validated for each request. The key must be provided using the header method:
 * Header - header with the key ```access_token``` containing the token
-* Cooking - cookie with the key ```access_token``` containing the token
