@@ -29,7 +29,7 @@ jobs:
       directory: products/sde/data-ingestion/cr8tor-publisher
       platforms: '["amd64"]'
       # yamlPath: cr8tor_approval_service
-      pathToImageDefinition: ./approval-service
+      pathToImageDefinition: ./approval-service/
     secrets: inherit
   
   helm_package:
