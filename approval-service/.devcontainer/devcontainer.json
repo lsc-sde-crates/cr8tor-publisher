@@ -22,7 +22,7 @@
 	},
 	"runArgs": [
 		"--network", "microapps-network",
-		"--name", "approval-container"
+		"--name", "approval-container-dev"
 	],
     "forwardPorts": [8000],
 	"postStartCommand": "uv sync",
@@ -32,9 +32,9 @@
 		"UV_LINK_MODE": "copy",
 		"UV_PROJECT_ENVIRONMENT": "/home/vscode/.venv",
 		"KEYVAULT_SECRETS_MNT_PATH": "./secrets",
-		"METADATA_CONTAINER_NAME": "metadata-container",
+		"METADATA_CONTAINER_NAME": "metadata-container-dev",
 		"METADATA_CONTAINER_PORT": "8002",
-		"PUBLISH_CONTAINER_NAME": "publish-container",
+		"PUBLISH_CONTAINER_NAME": "publish-container-dev",
 		"PUBLISH_CONTAINER_PORT": "8003"
 	},
 	"remoteUser": "vscode"
