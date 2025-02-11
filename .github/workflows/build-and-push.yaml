@@ -65,3 +65,5 @@ jobs:
   #     yamlPath: ".components.cr8tor.repository.branch"
   #     newValue: "release/${{ needs.buildandpush.outputs.GitVersion_SemVer }}"
   #   secrets: inherit
+
+  #
