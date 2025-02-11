@@ -1,0 +1,17 @@
+{
+    "[python]": {
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.fixAll": "explicit",
+            "source.organizeImports": "explicit"
+        },
+        "editor.defaultFormatter": "charliermarsh.ruff",
+        "editor.fontFamily": "'Fira Code', Consolas, 'Courier New', monospace",
+    },
+    "python.defaultInterpreterPath": "~/.venv/bin/python",
+    "editor.fontFamily": "'Fira Code', Consolas, 'Courier New', monospace",
+    "editor.fontLigatures": true,
+    "terminal.integrated.fontFamily": "'Cascadia Code NF', Consolas, 'Courier New', monospace",
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true
+}

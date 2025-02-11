@@ -1,0 +1,41 @@
+{
+	"name": "approval-service",
+	"build": {
+		"context": "..",
+		"dockerfile": "Dockerfile"
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"charliermarsh.ruff",
+				"kevinrose.vsc-python-indent",
+				"ms-python.python",
+				"ms-python.vscode-pylance"
+			],
+			"settings": {
+				"dotfiles.repository": "benjarvis18/dotfiles",
+				"dotfiles.targetPath": "~/dotfiles",
+				"dotfiles.installCommand": "install.sh",
+				"python.defaultInterpreterPath": "~/.venv/bin/python"
+			}			
+		}		
+	},
+	"runArgs": [
+		"--network", "microapps-network",
+		"--name", "approval-container"
+	],
+    "forwardPorts": [8000],
+	"postStartCommand": "uv sync",
+	"containerEnv": {
+		"DISPLAY": "dummy",
+		"PYTHONUNBUFFERED": "True",
+		"UV_LINK_MODE": "copy",
+		"UV_PROJECT_ENVIRONMENT": "/home/vscode/.venv",
+		"KEYVAULT_SECRETS_MNT_PATH": "./secrets",
+		"METADATA_CONTAINER_NAME": "metadata-container",
+		"METADATA_CONTAINER_PORT": "8002",
+		"PUBLISH_CONTAINER_NAME": "publish-container",
+		"PUBLISH_CONTAINER_PORT": "8003"
+	},
+	"remoteUser": "vscode"
+}

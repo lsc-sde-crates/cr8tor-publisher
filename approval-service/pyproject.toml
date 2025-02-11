@@ -1,0 +1,18 @@
+[project]
+name = "cr8tor-approval-service"
+version = "0.1.0"
+description = "Python FastAPI app to serve as Approval Service for CR8TOR project"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "httpx>=0.28.1",
+    "fastapi>=0.115.6",
+    "pydantic-settings>=2.7.1",
+    "uvicorn>=0.34.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.4",
+    "ruff>=0.9.1",
+]
