@@ -3,24 +3,29 @@
 
 import os
 import shutil
+import sys
 from pathlib import Path
 
 import dlt
 from dlt.sources.sql_database import sql_database
 from sqlalchemy import create_engine
 
-from . import databricks, schema, utils
+from . import config, databricks, schema, utils
 
 
 async def dlt_data_retrieve(
     access_payload: schema.DataAccessContract,
+    log: config.logging.Logger,
 ) -> dict:
     """Retrieves data from a Databricks SQL source and stores it in a target location."""
     # Disable default gzip compression for data writing (applicable to csv files)
     os.environ["DATA_WRITER__DISABLE_COMPRESSION"] = "True"
 
+    log.info("Retrieving data from %s source...", access_payload.source.get("type"))
+
     # Validate and create connection string based on source type
     if access_payload.source.get("type") == "DatabricksSQL":
+        log.info("Get Databricks access token...")
         access_token = databricks.get_access_token(
             str(access_payload.source.get("host_url")),
             str(access_payload.credentials.get("spn_clientid")),
@@ -35,6 +40,7 @@ async def dlt_data_retrieve(
         raise ValueError("Unsupported source type. Only DatabricksSQL is supported.")
 
     # Create a SQLAlchemy engine for database connection
+    log.info("Creating SQLAlchemy engine...")
     try:
         engine = create_engine(connection_string)
     except Exception as e:
@@ -48,12 +54,13 @@ async def dlt_data_retrieve(
     )
 
     # Clear staging directory before proceeding with data retrieval
+    log.info("Clear staging directory...")
     try:
         if Path.exists(staging_target_path):
             shutil.rmtree(staging_target_path)
     except OSError as e:
         msg = f"Failure clearing staging directory: {e}"
-        print(msg)
+        log.exception(msg)
         raise OSError(msg) from e
 
     # Ensure target directory exists
@@ -80,14 +87,20 @@ async def dlt_data_retrieve(
     requested_tables = list(set(access_payload.source.get("table", []))) or None
 
     # Initialize DLT pipeline.
+    log.info("Initialize DLT pipeline...")
     pipeline = dlt.pipeline(
         pipeline_name=f"dlt_{access_payload.project_name}_{destination_type}",
         destination=destination,
         dataset_name=access_payload.source.get("schema_name"),
-        progress="log",  # 'log' is recommended for production.
+        progress=dlt.progress.log(
+            logger=sys.stdout,
+            log_level=config.logging.INFO,
+            dump_system_stats=False,  # Log memory and cpu usage. Defaults to True. Requires psutil
+        ),
     )
 
     # Fetch tables from source with optimized backend
+    log.info("Initialize DLT source...")
     source = sql_database(
         engine,
         chunk_size=200000,
@@ -104,6 +117,7 @@ async def dlt_data_retrieve(
 
     try:
         # Run data pipeline.
+        log.info("Run DLT pipeline...")
         info = pipeline.run(
             source,
             write_disposition="replace",
@@ -111,12 +125,12 @@ async def dlt_data_retrieve(
             loader_file_format=loader_file_format,
         )
 
-        # Print load info.
-        print(
+        log.info(
             info,
-        )  # or should we use logging.info(info) ? ? TODO: check with lsc-sde github
+        )
 
         # Collect stored file paths
+        log.info("Collect stored file paths...")
         files = utils.collect_stored_file_paths(
             staging_target_path,
             utils.EXPECTED_TARGET_FILE_PATTERNS,
