@@ -26,9 +26,10 @@ jobs:
     uses: lsc-sde/lsc-sde/.github/workflows/ghcr-release.yaml@main
     with:
       imageName: cr8tor-approval-service
-      directory: products/sde/data-ingestion/cr8tor-publisher/approval-service
+      directory: products/sde/data-ingestion/cr8tor-publisher
       platforms: '["amd64"]'
       # yamlPath: cr8tor_approval_service
+      pathToImageDefinition: ./approval-service
     secrets: inherit
   
   helm_package:
