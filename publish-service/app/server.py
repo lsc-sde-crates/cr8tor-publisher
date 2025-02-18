@@ -46,7 +46,8 @@ async def datapublish_package(
     log.info("Publishing data files from staging to production ...")
     log.info("Project: %s", access_payload.project_name)
     log.info("Project start time: %s", access_payload.project_start_time)
-    log.info("Project destination: %s", access_payload.destination_type)
+    log.info("Project destination type: %s", access_payload.destination_type)
+    log.info("Project destination format: %s", access_payload.destination_format)
 
     res = await dlt.dlt_data_retrieve(access_payload, log)
     return schema.SuccessResponse(
@@ -75,7 +76,7 @@ async def datapublish_publish(
     log.info("Publishing data files from staging to production ...")
     log.info("Project: %s", project_payload.project_name)
     log.info("Project start time: %s", project_payload.project_start_time)
-    log.info("Project destination: %s", project_payload.destination_type)
+    log.info("Project destination type: %s", project_payload.destination_type)
 
     res = await publish.data_publish(project_payload, log)
 
