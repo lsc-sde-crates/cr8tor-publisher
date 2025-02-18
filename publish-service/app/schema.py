@@ -69,12 +69,40 @@ class DataPublishContract(BaseModel):
 class DataAccessContract(DataPublishContract):
     """Model for data access contract."""
 
+    destination_format: str = Field(
+        description="Target format for the data to be loaded",
+        enum=["CSV", "DUCKDB"],
+    )
     source: dict = Field(
         description="db connection details definition",
     )
     credentials: dict = Field(
         description="Auth provider and secrets key",
     )
+    metadata: DatasetMetadata = Field(
+        description="Metadata for the requested tables",
+    )
+
+
+class ColumnMetadata(BaseModel):
+    """Model for column metadata."""
+
+    name: str
+    datatype: str
+
+
+class TableMetadata(BaseModel):
+    """Model for table metadata."""
+
+    name: str
+    columns: list[ColumnMetadata]
+
+
+class DatasetMetadata(BaseModel):
+    """Model for dataset metadata."""
+
+    schema_name: str  # TODO: align between cr8tor and metadata. change the name of the schema field, eg. to schema_name
+    tables: list[TableMetadata]
 
 
 ###############################################################################
