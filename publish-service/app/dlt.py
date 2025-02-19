@@ -98,7 +98,7 @@ class DLTDataRetriever:
             self.connection_string = (
                 f"databricks://token:{self.access_token}@{str(self.access_payload.source.get('host_url')).replace('https://', '')}"
                 f"?http_path={self.access_payload.source.get('http_path')}"
-                f"&catalog={self.access_payload.source.get('catalog')}&schema={self.access_payload.source.get('schema_name')}"
+                f"&catalog={self.access_payload.source.get('catalog')}"
             )
         else:
             msg = "Unsupported source type. Only DatabricksSQL is supported."
@@ -118,7 +118,7 @@ class DLTDataRetriever:
     def _get_table_metadata(self, table_name: str) -> tuple:
         """Fetch table metadata."""
         if self.access_payload.source.get("type") == "DatabricksSQL":
-            url = f"{self.access_payload.source.get('host_url')}/api/2.1/unity-catalog/tables/{self.access_payload.source.get('catalog')}.{self.access_payload.source.get('schema_name')}.{table_name}"
+            url = f"{self.access_payload.source.get('host_url')}/api/2.1/unity-catalog/tables/{self.access_payload.source.get('catalog')}.{self.access_payload.metadata.schema_name}.{table_name}"
             headers = {"Authorization": f"Bearer {self.access_token}"}
             table_data = databricks.handle_restapi_request(
                 url,
@@ -309,7 +309,7 @@ class DLTDataRetriever:
         self.pipeline = dlt.pipeline(
             pipeline_name=f"dlt_{self.access_payload.project_name}_{self.destination_type}",
             destination=self.dlt_destination,
-            dataset_name=self.access_payload.source.get("schema_name"),
+            dataset_name=self.access_payload.metadata.schema_name,
             progress=dlt.progress.log(
                 logger=sys.stdout,
                 log_level=config.logging.INFO,
