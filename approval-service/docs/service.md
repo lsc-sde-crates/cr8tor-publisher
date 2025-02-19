@@ -61,3 +61,31 @@ The microservices (Approval, Metadata and Publish) need to communicate with one 
 
 To create the network, run the command:
    `docker network create microapps-network`
+
+Currently, microservices are set up with the following default configuration:
+
+| Service Name     | Exposed Port | Default Container Name  |
+|------------------|--------------|-------------------------|
+| ApprovalService  | 8000         | approval-container      |
+| MetadataService  | 8002         | metadata-container      |
+| PublishService   | 8003         | publish-container       |
+
+### Databricks Service Principal
+
+Metadata and Publish Service use the [Databricks Workspace Service principal](https://learn.microsoft.com/en-gb/azure/databricks/admin/users-groups/service-principals#manage-service-principals-in-your-workspace) to connect to the Databricks Unity Catalog.
+
+At the moment, the creation of service principal (SPN) is not automated and requires Databricks Workspace Admin permissions.
+
+Once the service principal is created [see docs](https://learn.microsoft.com/en-gb/azure/databricks/admin/users-groups/service-principals#add-a-service-principal-to-a-workspace-using-the-workspace-admin-settings) we need to:
+
+1. Add the following secrets to the chosen key vault resource, e.g., Azure KeyVault:
+   - `databricks_spn_clientid` which contains spn ClientID
+   - `databricks_spn_secret` which contains the secret generated in Databricks for the given service principal
+
+2. Grant service principal access to the SQL Warehouse cluster. Minimum required permission: CAN USE. 
+   Follow [Databricks docs](https://learn.microsoft.com/en-gb/azure/databricks/compute/sql-warehouse/create#manage-a-sql-warehouse) to add the permission.
+
+3. Grant service principal access to the requested datasets. At minimum:
+   - ``GRANT USE CATALOG ON CATALOG <catalog_name> TO `<spn_client_id>` ``
+   - ``GRANT USE SCHEMA ON SCHEMA <full_schema_name> TO `<spn_client_id>` ``
+   - ``GRANT USE SELECT ON SCHEMA <full_schema_name> TO `<spn_client_id>` ``
