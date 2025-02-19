@@ -29,8 +29,6 @@ class DatabricksSourceConnection(DataSourceConnection):
         description="Port for the db cluster (defaults to 443)",
     )
     catalog: str = Field(description="Unity catalog name")
-    schema_name: str = Field(description="Schema name in UC")
-    table: list[str] | None = Field(default=None, description="Target table names")
 
 
 class DatabricksSourceAccessCredential(BaseModel):
@@ -101,8 +99,8 @@ class TableMetadata(BaseModel):
 class DatasetMetadata(BaseModel):
     """Model for dataset metadata."""
 
-    schema_name: str  # TODO: align between CR8TOR and metadata. change the name of the schema field, eg. to schema_name
-    tables: list[TableMetadata]
+    schema_name: str = Field(description="Schema name in UC")
+    tables: list[TableMetadata] = Field(description="Target table names")
 
 
 ###############################################################################

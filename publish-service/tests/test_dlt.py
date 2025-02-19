@@ -26,7 +26,6 @@ class TestDLTDataRetriever:
                 "host_url": "https://example.com",
                 "http_path": "/sql/1.0/endpoints/abc",
                 "catalog": "test_catalog",
-                "schema_name": "test_schema",
             },
             credentials={
                 "spn_clientid": "client_id",
