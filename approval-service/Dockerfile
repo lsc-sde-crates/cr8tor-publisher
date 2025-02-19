@@ -10,7 +10,7 @@ WORKDIR /home/appuser
 RUN chown -R appuser:appuser /home/appuser
 
 # Keyvault secrets are mounted at K8S pod level
-ENV KEYVAULT_SECRETS_MNT_PATH="./secrets"
+ENV SECRETS_MNT_PATH="./secrets"
 
 ENV METADATA_CONTAINER_NAME="metadata-container"
 ENV METADATA_CONTAINER_PORT="8002"
