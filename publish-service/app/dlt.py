@@ -187,6 +187,12 @@ class DLTDataRetriever:
         """Generate SQLAlchemy Column objects from metadata."""
         columns = []
         for column_metadata in table_metadata.columns:
+            # check if columns_dict[column_metadata.name] exists in the columns_dict
+            if column_metadata.name not in columns_dict:
+                msg = f"Column '{column_metadata.name}' does not exists in the table '{table_metadata.name}'."
+                msg += f" Available columns: {', '.join(columns_dict.keys())}"
+                raise ValueError(msg)
+
             column_type = self._map_datatype_to_sqlalchemy(
                 columns_dict[column_metadata.name].get("data_type"),
                 columns_dict,
