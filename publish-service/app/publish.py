@@ -81,7 +81,7 @@ def generate_checksums(path: Path) -> list:
         list: A list of dictionaries containing file paths, hash values, and total bytes.
 
     """
-    # Cr8tor bagIt function expects the data file path
+    # CR8TOR bagIt function expects the data file path
     #   to be relative to the bag root.
     # If researches would like to verify bagit package,
     #   they need to move the data files to the data/outputs/ folder.

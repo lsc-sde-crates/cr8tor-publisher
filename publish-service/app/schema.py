@@ -101,7 +101,7 @@ class TableMetadata(BaseModel):
 class DatasetMetadata(BaseModel):
     """Model for dataset metadata."""
 
-    schema_name: str  # TODO: align between cr8tor and metadata. change the name of the schema field, eg. to schema_name
+    schema_name: str  # TODO: align between CR8TOR and metadata. change the name of the schema field, eg. to schema_name
     tables: list[TableMetadata]
 
 

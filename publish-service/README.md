@@ -1,26 +1,21 @@
-# Cr8tor Publish Service
+# CR8TOR Publish Service
 
-The microservice is part of three microservices that support cr8tor solution. The Publish Service is based on FastAPI application and its key activities are:
-1) retrieving the data from the source database, here Databricks Unity Catalog. Data is stored in the staging container. 
-2) publishing the data to target production container.
+The FastAPI based microservice supporting the [CR8TOR solution](https://github.com/lsc-sde-crates/cr8tor).
 
-The microservice has following endpoints:
-1) POST data-publish/package
-2) POST data-publish/publish
+More description and Configuration details at [Service guide](./docs/service.md).
 
-## Settings
+## Developer Guide
 
-Enviornment variables required:
-* TARGET_STORAGE_ACCOUNT_LSC_SDE_MNT_PATH, default = ./outputs/lsc-sde
-* TARGET_STORAGE_ACCOUNT_NW_SDE_MNT_PATH, default = ./outputs/nw-sde
-* KEYVAULT_SECRETS_MNT_PATH, default = ./secrets
-   
-The authentication is static API key based and requires a secret
-* publish_service_api_key 
+Please take the time to familiarize with the required [Configuration](./docs/service.md).
 
-stored in the KeyVault. When working locally, the secret file should be stored under KEYVAULT_SECRETS_MNT_PATH folder, e.g. e.g. secrets/publish_service_api_key.
+For Setting up local environment, working with Docker or Troubleshooting, see details at [Approval Service documentation](../approval-service/README.md#developer-guide).
 
-## Authentication
+### Troubleshooting
 
-Authentication is implemented through a static API key. The API key is stored as an environment variable (publish_service_api_key) and validated for each request. The key must be provided using the header method:
-* Header - header with the key ```access_token``` containing the token
+When running the Publish Service app in Windows, without the devcontainer and Docker, we need to set the `ARROW_TZDATA` environment variable. That way the dltHub can write out csv files with proper timezone configuration. Add the following code to your script:
+   `os.environ['ARROW_TZDATA'] = r'C:\Users\{YOUR_USER_NAME}\Downloads\tzdata'`
+See more details at:
+
+- <https://stackoverflow.com/questions/76629191/arrowinvalid-cannot-locate-timezone-utc-timezone-database-not-found>
+- <https://stackoverflow.com/questions/74267313/how-to-use-tzdata-file-with-pyarrow-compute-assume-timezone>
+  
