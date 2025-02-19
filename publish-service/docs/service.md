@@ -126,7 +126,7 @@ The microservice has the following endpoints, each serving a specific function:
 
 ### Configuration common for all services
 
-See the main guid for the microservices, [located here](../../docs/services.md).
+See the main guide for the microservices, [located here](../../docs/services.md).
 
 ### Environment Variables
 
