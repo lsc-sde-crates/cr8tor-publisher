@@ -1,7 +1,7 @@
 ---
 title: Metadata Service
 layout: page
-parent: Data Ingestion 
+parent: CR8TOR Microservices 
 grand_parent: Architecture
 has_children: true
 ---
@@ -20,6 +20,10 @@ The microservice has the following endpoints:
 
 ## Configuration
 
+### Configuration common for all services
+
+See the main guid for the microservices, [located here](../../docs/services.md).
+
 ### Environment Variables
 
 Environment variables required:
@@ -30,14 +34,4 @@ The authentication is static API key based and requires a secret:
 
 - `metadata_service_api_key`
 
-stored in the KeyVault. When working locally, the secret file should be stored under SECRETS_MNT_PATH folder, e.g. secrets/metadata_service_api_key.
-
-### Authentication
-
-Authentication is implemented through a static API key. The API key is stored as an environment variable (metadata_service_api_key) and validated for each request. The key must be provided using the `Header` method:
-
-- Header - include key `x-api-key` containing the token
-
-### Docker network
-
-See details at [Approval Service docs](../../approval-service/docs/service.md#docker-network)
+stored in the secret vault, e.g. Azure Key Vault. When working locally, the secret file should be stored under SECRETS_MNT_PATH folder, e.g. secrets/metadata_service_api_key.
