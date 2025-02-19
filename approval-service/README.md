@@ -103,3 +103,35 @@ Resolving known issues with Podman or WSL:
  "containerEnv": {
    "HOME": "/home/vscode"
  }`
+
+#### Podman commands
+    podman machine start
+
+    podman build -t metadata-service .
+    podman build -t metadata-service .
+    podman build -t publish-service .
+
+    podman run -d -v secrets:/mnt/secrets/ -e KEYVAULT_SECRETS_MNT_PATH="/mnt/secrets/" --name publish-container --network=microapps-network -p 8003:8003 publish-service
+
+    podman run -d -v secrets:/mnt/secrets/ -e KEYVAULT_SECRETS_MNT_PATH="/mnt/secrets/" --name approval-container --network=microapps-network -p 8000:8000 approval-service
+    
+    podman run -d -v secrets:/mnt/secrets/ -e KEYVAULcT_SECRETS_MNT_PATH="/mnt/secrets/" --name metadata-container --network=microapps-network -p 8002:8002 metadata-service
+
+Executing commands on running container:
+
+    podman exec publish-container ls outputs/nw-sde/
+
+    podman exec publish-container ls .dlt/pipelines/dlt_Pr005_NW/normalize
+
+    podman exec publish-container ls .dlt/pipelines/dlt_Pr005_NW/normalize/30d2856cc5123f3f/
+
+    podman exec publish-container ls .dlt/pipelines/dlt_Pr005_NW/normalize/30d2856cc5123f3f/1739404960.306188/new_jobs
+
+    podman exec publish-container ls outputs/nw-sde/staging/Pr005/20250205_010101/data/outputs/p_abx -l -h
+
+#### Podman volume mounting
+    podman run --name temp_container -v secrets:/secrets alpine sleep 10
+
+    podman machine ssh "podman cp /mnt/c/Users/<user.folder>/<path_to_secrets_folder>/secrets/     temp_container:/secrets"
+
+    podman rm -f temp_container
