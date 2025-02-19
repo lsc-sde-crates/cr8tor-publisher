@@ -31,7 +31,7 @@
 		"PYTHONUNBUFFERED": "True",
 		"UV_LINK_MODE": "copy",
 		"UV_PROJECT_ENVIRONMENT": "/home/vscode/.venv",
-		"KEYVAULT_SECRETS_MNT_PATH": "./secrets",
+		"SECRETS_MNT_PATH": "./secrets",
 		"METADATA_CONTAINER_NAME": "metadata-container-dev",
 		"METADATA_CONTAINER_PORT": "8002",
 		"PUBLISH_CONTAINER_NAME": "publish-container-dev",

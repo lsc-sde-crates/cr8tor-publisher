@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     cookie_domain: str = Field(default="localhost")
     model_config = SettingsConfigDict(
         env_file=".env",
-        secrets_dir=os.getenv("KEYVAULT_SECRETS_MNT_PATH", "secrets"),
+        secrets_dir=os.getenv("SECRETS_MNT_PATH", "secrets"),
         extra="ignore",
     )
 

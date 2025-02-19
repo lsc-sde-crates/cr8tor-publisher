@@ -29,7 +29,7 @@ class Settings(BaseSettings):
     publish_container_port: str = Field(default="8000")
     model_config = SettingsConfigDict(
         env_file=".env",
-        secrets_dir=os.getenv("KEYVAULT_SECRETS_MNT_PATH", "secrets"),
+        secrets_dir=os.getenv("SECRETS_MNT_PATH", "secrets"),
         extra="ignore",
     )
 
