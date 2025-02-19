@@ -40,6 +40,17 @@ Basic steps to spin up local environment:
 5) Use eg. Postman to send POST Rest requests.
    ![alt text](./docs/postman_call_example.png)
 
+### Useful commands
+
+Analyse duckdb database:
+
+    import duckdb
+    conn = duckdb.connect("outputs/lsc-sde/staging/Pr005/20250205_010101/data/outputs/database.duckdb")
+    conn.sql("DESCRIBE p_abx.procedure_occurrence").show()
+    conn.sql("SELECT * FROM p_abx.procedure_occurrence").show()
+    conn.close()
+
+
 ### Working with Docker
 
 If we want to build locally the docker images and containers, without DevContainer,
@@ -87,6 +98,9 @@ Resolving known issues with Podman or WSL:
         `[[registry]]`
         `location="ghcr.io"`
         `insecure=true`
+    3) also, add the similar config in Windows:
+		C:\Users\YOUR_USERNAME\.config\containers\registries.conf
+	4) restart Podman, for example in Podman UI
 4. TLS certificate errors executing `uv sync` command
    * add to pyproject.toml
    `[tool.uv]`
@@ -103,6 +117,11 @@ Resolving known issues with Podman or WSL:
  "containerEnv": {
    "HOME": "/home/vscode"
  }`
+7. Login to WSL. Update the package repositories:
+`sudo dnf update -y`. Check git version. Install if missing:
+
+    git --version
+    sudo dnf install -y git
 
 #### Podman commands
     podman machine start
