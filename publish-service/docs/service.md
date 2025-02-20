@@ -47,16 +47,13 @@ The microservice has the following endpoints, each serving a specific function:
                      "name": "person",
                      "columns": [ 
                          {
-                             "name": "person_key",
-                             "datatype": "string"
+                             "name": "person_key"
                          },
                          {
-                             "name": "person_id",
-                             "datatype": "bigint"
+                             "name": "person_id"
                          },
                          {
-                             "name": "age",
-                             "datatype": "bigint"
+                             "name": "age"
                          }
                      ]
                  },
@@ -64,12 +61,10 @@ The microservice has the following endpoints, each serving a specific function:
                      "name": "address",
                      "columns": [
                          {
-                             "name": "address_key",
-                             "datatype": "string"
+                             "name": "address_key"
                          },
                          {
-                             "name": "address",
-                             "datatype": "string"
+                             "name": "address"
                          }
                      ]
                  }
@@ -113,9 +108,11 @@ The microservice has the following endpoints, each serving a specific function:
      {
          "status": "success",
          "payload": {
-             "data_retrieved": [
+             "data_published": [
                  {
-                     "file_path": "data/outputs/database.duckdb"
+                "file_path": "data/outputs/database.duckdb",
+                "hash_value": "6ed6e817fb78953648324b0b9e44711bb55aa790e22e2353e8af6eae1f182bfdf10f88fc0e1a33c389cc3b73346dc513fde3fda594e3725ad1a3b568a55ff41c",
+                "total_bytes": 1585152
                  }
              ]
          }
