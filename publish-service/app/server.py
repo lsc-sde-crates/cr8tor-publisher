@@ -26,15 +26,45 @@ app.add_exception_handler(
 )
 
 
+@app.post("/data-publish/validate", response_model=schema.SuccessResponse)
+async def datapublish_package(
+    access_payload: schema.ValidationContract,
+    _: auth.AuthDependency,
+) -> schema.SuccessResponse:
+    """Publish Service Endpoint which validates source and destination existence.
+
+    Args:
+        access_payload: Endpoint accepts json with project details and source and destination details
+        _: Authentication dependency
+
+    Returns:
+        On Successful execution, returns the retrieved data
+        On Failure, returns the error message
+
+    """
+    log = config.setup_logger(f"PublishService Project {access_payload.project_name}")
+    log.info("Validating source and destination...")
+    log.info("Project: %s", access_payload.project_name)
+    log.info("Project start time: %s", access_payload.project_start_time)
+    log.info("Project destination type: %s", access_payload.destination_type)
+    log.info("Project destination format: %s", access_payload.destination_format)
+
+    res = await dlt.dlt_validate_source_destination(access_payload, log)
+    return schema.SuccessResponse(
+        status="success",
+        payload=res,
+    )
+
+
 @app.post("/data-publish/package", response_model=schema.SuccessResponse)
 async def datapublish_package(
-    access_payload: schema.DataAccessContract,
+    access_payload: schema.DataPackageContract,
     _: auth.AuthDependency,
 ) -> schema.SuccessResponse:
     """Publish Service Endpoint which retrieves the data from the source system.
 
     Args:
-        access_payload: Endpoint accepts 'access' file from ro-crate, in json format
+        access_payload: Endpoint accepts json with project details along with requested datasets details (list of tables, columns, files, etc.)
         _: Authentication dependency
 
     Returns:
@@ -72,7 +102,7 @@ async def datapublish_publish(
         On Failure, returns the error message
 
     """
-    log = config.setup_logger("PublishService Project %s", project_payload.project_name)
+    log = config.setup_logger(f"PublishService Project {project_payload.project_name}")
     log.info("Publishing data files from staging to production ...")
     log.info("Project: %s", project_payload.project_name)
     log.info("Project start time: %s", project_payload.project_start_time)

@@ -24,7 +24,7 @@ async def data_publish(
     """
     log.info("Publishing data files from staging to production...")
 
-    staging_target_path, production_target_path, storage_mount_path = (
+    staging_target_path, production_target_path, storage_mount_path, _, _ = (
         utils.get_target_paths(
             project_payload,
         )

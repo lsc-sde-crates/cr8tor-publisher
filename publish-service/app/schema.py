@@ -64,8 +64,8 @@ class DataPublishContract(BaseModel):
     )
 
 
-class DataAccessContract(DataPublishContract):
-    """Model for data access contract."""
+class ValidationContract(DataPublishContract):
+    """Model for validating source and destination."""
 
     destination_format: str = Field(
         description="Target format for the data to be loaded",
@@ -77,6 +77,11 @@ class DataAccessContract(DataPublishContract):
     credentials: dict = Field(
         description="Auth provider and secrets key",
     )
+
+
+class DataPackageContract(ValidationContract):
+    """Model for data access contract."""
+
     metadata: DatasetMetadata = Field(
         description="Metadata for the requested tables",
     )
@@ -85,15 +90,14 @@ class DataAccessContract(DataPublishContract):
 class ColumnMetadata(BaseModel):
     """Model for column metadata."""
 
-    name: str
-    datatype: str
+    name: str = Field(description="Column name")
 
 
 class TableMetadata(BaseModel):
     """Model for table metadata."""
 
-    name: str
-    columns: list[ColumnMetadata]
+    name: str = Field(description="Table name")
+    columns: list[ColumnMetadata] = Field(description="List of columns")
 
 
 class DatasetMetadata(BaseModel):

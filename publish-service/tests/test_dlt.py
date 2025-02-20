@@ -7,7 +7,7 @@ import pytest
 
 from app.config import logging
 from app.dlt import DLTDataRetriever
-from app.schema import DataAccessContract
+from app.schema import DataPackageContract
 
 
 class TestDLTDataRetriever:
@@ -16,7 +16,7 @@ class TestDLTDataRetriever:
     @pytest.fixture(autouse=True)
     def setup(self) -> None:
         """Set up the test case with necessary data and objects."""
-        self.access_payload = DataAccessContract(
+        self.access_payload = DataPackageContract(
             project_name="test_project",
             project_start_time="20250205_010101",
             destination_type="NW",
@@ -110,7 +110,7 @@ class TestDLTDataRetriever:
         assert self.retriever.access_token == "test_token"
         assert (
             self.retriever.connection_string
-            == "databricks://token:test_token@example.com?http_path=/sql/1.0/endpoints/abc&catalog=test_catalog&schema=test_schema"
+            == "databricks://token:test_token@example.com?http_path=/sql/1.0/endpoints/abc&catalog=test_catalog"
         )
 
     def test_get_source_connection_string_unsupported_source(self) -> None:  # type: ignore  # noqa: PGH003
@@ -189,6 +189,8 @@ class TestDLTDataRetriever:
             Path("/staging"),
             Path("/production"),
             None,
+            None,
+            None,
         )
         mock_filesystem.return_value = "filesystem_destination"
         mock_pipeline.return_value = "dlt_pipeline"
@@ -208,6 +210,8 @@ class TestDLTDataRetriever:
         mock_get_target_paths.return_value = (
             Path("/staging"),
             Path("/production"),
+            None,
+            None,
             None,
         )
         self.retriever.destination_format = "UnsupportedType"
