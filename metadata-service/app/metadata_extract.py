@@ -28,8 +28,16 @@ async def process_metadata_request(
     log.info("Processing metadata request ...")
 
     if access.source.get("type") == "DatabricksSQL":
-        source, credentials = validate_access_request_details(access, log)
-        metadata = databricks.get_metadata_restapi(source, credentials, log)
+        requested_dataset, source, credentials = validate_access_request_details(
+            access,
+            log,
+        )
+        metadata = databricks.get_metadata_restapi(
+            requested_dataset,
+            source,
+            credentials,
+            log,
+        )
     else:
         log.exception("Invalid source type.")
         raise HTTPException(
@@ -43,7 +51,11 @@ async def process_metadata_request(
 def validate_access_request_details(
     access: schema.DataAccessContract,
     log: config.logging.Logger,
-) -> tuple[schema.DatabricksSourceConnection, schema.DatabricksSourceAccessCredential]:
+) -> tuple[
+    schema.DatasetMetadata,
+    schema.DatabricksSourceConnection,
+    schema.DatabricksSourceAccessCredential,
+]:
     """Validate the access request details and return the source and credentials.
 
     Args:
@@ -58,6 +70,7 @@ def validate_access_request_details(
     """
     log.info("Validate payload request ...")
     try:
+        requested_dataset = schema.DatasetMetadata(**access.dataset)
         source = schema.DatabricksSourceConnection(**access.source)
         credentials = schema.DatabricksSourceAccessCredential(**access.credentials)
     except ValidationError as exc:
@@ -65,11 +78,13 @@ def validate_access_request_details(
         error_messages = []
 
         # Collect all possible combinations of exc.errors().loc + exc.errors().msg with sequence number
-        for idx, error in enumerate(exc.errors(), start=1):
-            loc = " - ".join(str(l) for l in error["loc"])
-            msg = error["msg"]
-            error_messages.append(f"{idx}. {loc} - {msg}")
-        detail_msg = detail_msg + " " + "; ".join(error_messages)
+        try:
+            for idx, error in enumerate(exc.errors(), start=1):
+                loc = ":".join(str(val) for val in error["loc"]).replace("body:", "")
+                msg = error["msg"]
+                error_messages.append(f"{idx}. {msg}: {loc}")
+        finally:
+            detail_msg = detail_msg + " " + "; ".join(error_messages)
         log.exception(detail_msg)
 
         raise HTTPException(
@@ -77,4 +92,4 @@ def validate_access_request_details(
             detail=detail_msg,
         ) from exc
 
-    return source, credentials
+    return requested_dataset, source, credentials

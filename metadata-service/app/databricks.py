@@ -89,9 +89,10 @@ def handle_restapi_request(
 
 
 def get_metadata_restapi(
+    requested_dataset: schema.DatasetMetadata,
     source: schema.DatabricksSourceConnection,
     credentials: schema.DatabricksSourceAccessCredential,
-    log: config.logging.Logger,    
+    log: config.logging.Logger,
 ) -> dict[str, Any]:
     """Retrieve metadata from the Databricks REST API."""
     try:
@@ -106,7 +107,7 @@ def get_metadata_restapi(
 
         # Retrieve schema description
         log.info("Retrieving Unity Catalog schema details ...")
-        url = f"{source.host_url}/api/2.1/unity-catalog/schemas/{source.catalog}.{source.schema_name}"
+        url = f"{source.host_url}/api/2.1/unity-catalog/schemas/{source.catalog}.{requested_dataset.schema_name}"
         schema_details = handle_restapi_request(url, headers, {})
 
         # Retrieve tables in the schema
@@ -114,9 +115,25 @@ def get_metadata_restapi(
         url = f"{source.host_url}/api/2.1/unity-catalog/tables"
         params = {
             "catalog_name": source.catalog,
-            "schema_name": source.schema_name,
+            "schema_name": requested_dataset.schema_name,
         }
         tables = handle_restapi_request(url, headers, params, "tables", paginate=True)
+
+        # Build dictionary of table names and their columns from requested_dataset
+        requested_columns = {}
+        if requested_dataset.tables and len(requested_dataset.tables) > 0:
+            for table in requested_dataset.tables:
+                requested_columns[table.name] = (
+                    [col.name for col in table.columns]
+                    if table.columns is not None
+                    else []
+                )
+
+        # Filter tables from requested_columns if it is not empty
+        if requested_columns:
+            tables = [
+                table for table in tables if table.get("name") in requested_columns
+            ]
 
         # Extract tables and their columns
         log.info("Parsing values to output model...")
@@ -126,14 +143,6 @@ def get_metadata_restapi(
             table_description = table.get("comment", "")
             columns = table.get("columns", [])
 
-            # Filter tables if access.source.table list is provided
-            if (
-                source.table
-                and len(source.table) > 0
-                and table_name not in source.table
-            ):
-                continue
-
             # Extract column metadata
             column_metadata_list = [
                 schema.ColumnMetadata(
@@ -142,6 +151,8 @@ def get_metadata_restapi(
                     datatype=column.get("type_name", ""),
                 )
                 for column in columns
+                if column.get("name", "") in requested_columns[table_name]
+                or not requested_columns[table_name]
             ]
 
             # Add the table metadata
@@ -154,10 +165,10 @@ def get_metadata_restapi(
             )
 
         dataset_metadata = schema.DatasetMetadata(
-            name="default_name",
+            name="default_name",  # TODO: Revise this
             description=schema_details.get("comment", ""),
             catalog=schema_details.get("catalog_name", ""),
-            table_schema=schema_details.get("name", ""),
+            schema_name=schema_details.get("name", ""),
             tables=table_metadata_list,
         )
 
