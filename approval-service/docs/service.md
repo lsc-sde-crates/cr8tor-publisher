@@ -37,10 +37,15 @@ See the main guide for the microservices, [located here](../../docs/services.md)
 Environment variables required:
 
 - `METADATA_CONTAINER_NAME`, default = `metadata-container`
+  Name of the Docker container for Metadata service.
 - `METADATA_CONTAINER_PORT`, default = `8002`
+  Port of Metadata container which will be exposed and reachable by other services.
 - `PUBLISH_CONTAINER_NAME`, default = `publish-container`
+  Name of the Docker container for Publish service.
 - `PUBLISH_CONTAINER_PORT`, default = `8003`
+  Port of Publish container which will be exposed and reachable by other services.
 - `SECRETS_MNT_PATH`, default = `./secrets`
+  Path to the folder where secrets are mounted.
 
 The authentication is based on a static API key and requires a secret
 

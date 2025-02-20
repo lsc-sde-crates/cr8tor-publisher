@@ -126,15 +126,15 @@ Resolving known issues with Podman or WSL:
 #### Podman commands
     podman machine start
 
-    podman build -t metadata-service .
+    podman build -t approval-service .
     podman build -t metadata-service .
     podman build -t publish-service .
 
-    podman run -d -v secrets:/mnt/secrets/ -e KEYVAULT_SECRETS_MNT_PATH="/mnt/secrets/" --name publish-container --network=microapps-network -p 8003:8003 publish-service
+    podman run -d -v secrets:/mnt/secrets/ -e SECRETS_MNT_PATH="/mnt/secrets/" --name publish-container --network=microapps-network -p 8003:8003 publish-service
 
-    podman run -d -v secrets:/mnt/secrets/ -e KEYVAULT_SECRETS_MNT_PATH="/mnt/secrets/" --name approval-container --network=microapps-network -p 8000:8000 approval-service
+    podman run -d -v secrets:/mnt/secrets/ -e SECRETS_MNT_PATH="/mnt/secrets/" --name approval-container --network=microapps-network -p 8000:8000 approval-service
     
-    podman run -d -v secrets:/mnt/secrets/ -e KEYVAULcT_SECRETS_MNT_PATH="/mnt/secrets/" --name metadata-container --network=microapps-network -p 8002:8002 metadata-service
+    podman run -d -v secrets:/mnt/secrets/ -e SECRETS_MNT_PATH="/mnt/secrets/" --name metadata-container --network=microapps-network -p 8002:8002 metadata-service
 
 Executing commands on running container:
 

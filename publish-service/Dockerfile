@@ -23,6 +23,12 @@ ENV TARGET_STORAGE_ACCOUNT_NW_SDE_MNT_PATH="./outputs/nw-sde"
 # Keyvault secrets are mounted at K8S pod level
 ENV SECRETS_MNT_PATH="./secrets"
 
+# DltHub Pipeline working directory where dltHub state files, logs and extracted data is temporarily stored
+# See https://dlthub.com/docs/general-usage/pipeline#pipeline-working-directory
+ENV DLTHUB_PIPELINE_WORKING_DIR="/home/appuser/dlt/pipelines"
+RUN mkdir -p ${DLTHUB_PIPELINE_WORKING_DIR}
+RUN chown -R appuser:appuser ${DLTHUB_PIPELINE_WORKING_DIR}
+
 # Install uv
 # Ref: https://docs.astral.sh/uv/guides/integration/docker/#installing-uv
 COPY --from=ghcr.io/astral-sh/uv:0.5.29 /uv /uvx /bin/
