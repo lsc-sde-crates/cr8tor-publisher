@@ -10,7 +10,7 @@ WORKDIR /home/appuser
 RUN chown -R appuser:appuser /home/appuser
 
 # Keyvault secrets are mounted at K8S pod level
-ENV KEYVAULT_SECRETS_MNT_PATH="./secrets"
+ENV SECRETS_MNT_PATH="./secrets"
 
 # Install uv
 # Ref: https://docs.astral.sh/uv/guides/integration/docker/#installing-uv

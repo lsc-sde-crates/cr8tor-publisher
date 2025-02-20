@@ -23,13 +23,12 @@ class DatabricksSourceConnection(DataSourceConnection):
     """Model for Databricks source connection."""
 
     host_url: HttpUrl = Field(description="dbs workspace URL")
+    http_path: str = Field(description="http path to the db cluster")
     port: int = Field(
         default=443,
         description="Port for the db cluster (defaults to 443)",
     )
     catalog: str = Field(description="Unity catalog name")
-    schema_name: str = Field(description="Schema name in UC")
-    table: list[str] | None = Field(default=None, description="Target table names")
 
 
 class DatabricksSourceAccessCredential(BaseModel):
@@ -47,8 +46,8 @@ class DatabricksSourceAccessCredential(BaseModel):
     )
 
 
-class DataPublishContract(BaseModel):
-    """Model required for all publish endpoints."""
+class MetadataContract(BaseModel):
+    """Model required for all metadata endpoints."""
 
     project_name: str = (
         Field(description="Project name (without whitespaces)", pattern=r"^\S+$"),
@@ -65,41 +64,49 @@ class DataPublishContract(BaseModel):
     )
 
 
-class DataAccessContract(DataPublishContract):
+class DataAccessContract(MetadataContract):
     """Model for data access contract."""
 
+    destination_format: str = Field(
+        description="Target format for the data to be loaded",
+        enum=["CSV", "DUCKDB"],
+    )
     source: dict = Field(
         description="db connection details definition",
     )
     credentials: dict = Field(
         description="Auth provider and secrets key",
     )
+    dataset: dict | None = Field(
+        None,
+        description="List of tables and columns for requested dataset",
+    )
 
 
 class ColumnMetadata(BaseModel):
     """Model for column metadata."""
 
-    name: str
-    description: str
-    datatype: str
+    name: str = Field(description="Column name")
+    description: str | None = Field(None, description="Column description")
+    datatype: str | None = Field(None, description="Data type of the column")
 
 
 class TableMetadata(BaseModel):
     """Model for table metadata."""
 
-    name: str
-    description: str
-    columns: list[ColumnMetadata]
+    name: str = Field(description="Table name")
+    description: str | None = Field(None, description="Table description")
+    columns: list[ColumnMetadata] | None = Field(None, description="List of columns")
 
 
 class DatasetMetadata(BaseModel):
     """Model for dataset metadata."""
 
-    name: str
-    description: str
-    catalog: str
-    table_schema: str
-    tables: list[TableMetadata]
+    name: str | None = Field(None, description="Dataset name")
+    description: str | None = Field(None, description="Dataset description")
+    catalog: str | None = Field(None, description="Catalog name in Unity Catalog")
+    schema_name: str = Field(description="Schema name in Unity Catalog")
+    tables: list[TableMetadata] | None = Field(description="Target table names")
 
 
 ###############################################################################

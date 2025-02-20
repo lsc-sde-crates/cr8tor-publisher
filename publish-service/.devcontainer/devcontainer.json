@@ -22,7 +22,7 @@
 	},
 	"runArgs": [
 		"--network", "microapps-network",
-        "--name","publish-container"
+        "--name","publish-container-dev"
 	],
     "forwardPorts": [8003],
     "postStartCommand": "uv sync",
@@ -31,7 +31,7 @@
 		"PYTHONUNBUFFERED": "True",
 		"UV_LINK_MODE": "copy",
 		"UV_PROJECT_ENVIRONMENT": "/home/vscode/.venv",
-		"KEYVAULT_SECRETS_MNT_PATH": "./secrets",
+		"SECRETS_MNT_PATH": "./secrets",
 		"TARGET_STORAGE_ACCOUNT_LSC_SDE_MNT_PATH": "./outputs/lsc-sde",
 		"TARGET_STORAGE_ACCOUNT_NW_SDE_MNT_PATH": "./outputs/nw-sde"
 	},

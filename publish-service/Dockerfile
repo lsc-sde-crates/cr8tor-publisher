@@ -21,7 +21,7 @@ ENV TARGET_STORAGE_ACCOUNT_LSC_SDE_MNT_PATH="./outputs/lsc-sde"
 ENV TARGET_STORAGE_ACCOUNT_NW_SDE_MNT_PATH="./outputs/nw-sde"
 
 # Keyvault secrets are mounted at K8S pod level
-ENV KEYVAULT_SECRETS_MNT_PATH="./secrets"
+ENV SECRETS_MNT_PATH="./secrets"
 
 # Install uv
 # Ref: https://docs.astral.sh/uv/guides/integration/docker/#installing-uv

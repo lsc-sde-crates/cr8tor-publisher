@@ -7,7 +7,9 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from . import schema
+from . import config, schema
+
+log = config.setup_logger("PublishService")
 
 
 async def validation_exception_handler(
@@ -17,7 +19,7 @@ async def validation_exception_handler(
     """Handles validation errors and returns a custom JSON response."""
     detail_msg = "Invalid input provided. Mising required keys or invalid values in the body payload."
 
-    print("Validation error: ", detail_msg, " ", exc.errors())  # noqa: T201
+    log.exception("Validation error: %s %s", detail_msg, exc.errors())
 
     error_response = schema.ErrorResponse(
         status="error",
@@ -31,7 +33,7 @@ async def validation_exception_handler(
 
 async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
     """Handles all HTTPExceptions and returns a structured ErrorResponse."""
-    print(f"HTTPException: {exc.detail}")
+    log.exception("HTTPException: %s", exc.detail)
 
     error_response = schema.ErrorResponse(
         status="error",
@@ -47,7 +49,7 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> JSONRe
 # Global Exception Handler (Catch-All)
 async def global_exception_handler(request: Request, exc: Exception) -> JSONResponse:
     """Handles all unhandled exceptions and returns a structured ErrorResponse."""
-    print(f"Unhandled error: {exc}")  # Log the error
+    log.exception("Unhandled error: %s", exc)
 
     error_response = schema.ErrorResponse(
         status="error",
@@ -65,7 +67,7 @@ async def starlette_http_exception_handler(
     exc: StarletteHTTPException,
 ) -> JSONResponse:
     """Handles Starlette HTTP exceptions (e.g., 404 Not Found) and returns a structured ErrorResponse."""
-    print(f"StarletteHTTPException: Url: {request.url}. Error: {exc.detail}")
+    log.exception("StarletteHTTPException: Url: %s. Error: %s", request.url, exc.detail)
 
     error_response = schema.ErrorResponse(
         status="error",
