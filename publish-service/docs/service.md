@@ -130,8 +130,13 @@ See the main guide for the microservices, [located here](../../docs/services.md)
 Environment variables required:
 
 - `TARGET_STORAGE_ACCOUNT_LSC_SDE_MNT_PATH`, default = `./outputs/lsc-sde`
+  Path to target storage account where datasets for LSC should be stored
 - `TARGET_STORAGE_ACCOUNT_NW_SDE_MNT_PATH`, default = `./outputs/nw-sde`
+  Path to target storage account where datasets for NW should be stored
 - `SECRETS_MNT_PATH`, default = `./secrets`
+  Path to the folder where secrets are mounted.
+- `DLTHUB_PIPELINE_WORKING_DIR`, default = `/home/appuser/dlt/pipelines`.
+    DltHub Pipeline working directory where dltHub state files, logs and extracted data is temporarily stored. See <https://dlthub.com/docs/general-usage/pipeline#pipeline-working-directory>
 
 The authentication is static API key based and requires a secret
 

@@ -31,6 +31,7 @@
 		"PYTHONUNBUFFERED": "True",
 		"UV_LINK_MODE": "copy",
 		"UV_PROJECT_ENVIRONMENT": "/home/vscode/.venv",
+		"DLTHUB_PIPELINE_WORKING_DIR": "/home/vscode/.dlt/pipelines",
 		"SECRETS_MNT_PATH": "./secrets",
 		"TARGET_STORAGE_ACCOUNT_LSC_SDE_MNT_PATH": "./outputs/lsc-sde",
 		"TARGET_STORAGE_ACCOUNT_NW_SDE_MNT_PATH": "./outputs/nw-sde"

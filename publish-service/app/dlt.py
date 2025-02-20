@@ -310,6 +310,7 @@ class DLTDataRetriever:
             pipeline_name=f"dlt_{self.access_payload.project_name}_{self.destination_type}",
             destination=self.dlt_destination,
             dataset_name=self.access_payload.metadata.schema_name,
+            pipelines_dir=os.getenv("DLTHUB_PIPELINE_WORKING_DIR"),
             progress=dlt.progress.log(
                 logger=sys.stdout,
                 log_level=config.logging.INFO,
