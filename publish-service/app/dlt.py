@@ -33,7 +33,7 @@ class DLTDataRetriever:
 
     def __init__(
         self,
-        access_payload: schema.DataAccessContract,
+        access_payload: schema.DataPackageContract,
         log: config.logging.Logger,
     ) -> None:
         """Initialize the DLTDataRetriever instance.
@@ -280,7 +280,7 @@ class DLTDataRetriever:
 
     def _initialize_dlt_pipeline(self) -> None:
         """Initialize the DLT pipeline."""
-        staging_target_path, production_target_path, _ = utils.get_target_paths(
+        staging_target_path, production_target_path, _, _, _ = utils.get_target_paths(
             self.access_payload,
         )
 
@@ -320,7 +320,9 @@ class DLTDataRetriever:
     async def retrieve_data(self) -> dict:
         """Main function to retrieve data using DLT."""
         # Set staging target path
-        self.staging_target_path, _, _ = utils.get_target_paths(self.access_payload)
+        self.staging_target_path, _, _, _, _ = utils.get_target_paths(
+            self.access_payload,
+        )
 
         # Clear staging directory
         self._clear_staging_directory()
@@ -372,9 +374,44 @@ class DLTDataRetriever:
 
 
 async def dlt_data_retrieve(
-    access_payload: schema.DataAccessContract,
+    access_payload: schema.DataPackageContract,
     log: config.logging.Logger,
 ) -> dict:
     """Entry point to retrieve data using DLT."""
     retriever = DLTDataRetriever(access_payload, log)
     return await retriever.retrieve_data()
+
+
+async def dlt_validate_source_destination(
+    access_payload: schema.ValidationContract,
+    log: config.logging.Logger,
+) -> dict:
+    """Function to validate connections to source and destination."""
+    retriever = DLTDataRetriever(access_payload, log)
+
+    # Get staging and production container paths
+    _, _, _, staging_container, production_container = utils.get_target_paths(
+        access_payload,
+    )
+
+    # Check if staging_container exists
+    if not Path.exists(staging_container):
+        msg = f"Staging container path {staging_container} does not exist."
+        raise FileNotFoundError(msg)
+
+    # Check if production_container exists
+    if not Path.exists(production_container):
+        msg = f"Production container path {production_container} does not exist."
+        raise FileNotFoundError(msg)
+
+    # Initialize source
+    if retriever.access_payload.source.get("type") == "DatabricksSQL":
+        retriever._get_source_connection_string()  # noqa: SLF001
+        retriever._create_sqlalchemy_engine()  # noqa: SLF001
+    else:
+        msg = "Unsupported source type. Only DatabricksSQL is supported."
+        raise ValueError(
+            msg,
+        )
+
+    return {"validation_status": "success"}
