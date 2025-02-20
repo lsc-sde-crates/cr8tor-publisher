@@ -20,7 +20,7 @@ There are three services created:
    [See detail docs for Approval Service](../approval-service/docs/service.md).
 2. Metadata Service which fetches the dataset's metadata, like table-column level descriptions, data types, names.
    [See detail docs for Metadata Service](../metadata-service/docs/service.md).
-3. Pulish Service which retrieves the dataset, packages in requested format and publishes to target destination.
+3. Publish Service which retrieves the dataset, packages in requested format and publishes to target destination.
    [See detail docs for Publish Service](../publish-service/docs/service.md).
 
 ## Authentication
