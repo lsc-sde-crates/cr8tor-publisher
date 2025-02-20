@@ -7,9 +7,10 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from . import schema, config
+from . import config, schema
 
 log = config.setup_logger("MetadataService")
+
 
 async def validation_exception_handler(
     request: Request,
@@ -19,6 +20,16 @@ async def validation_exception_handler(
     detail_msg = "Invalid input provided. Mising required keys or invalid values in the body payload."
 
     log.exception("Validation error: %s %s", detail_msg, exc.errors())
+
+    # Extract the error messages from the validation exception
+    error_messages = []
+    try:
+        for idx, error in enumerate(exc.errors(), start=1):
+            loc = ":".join(str(val) for val in error["loc"]).replace("body:", "")
+            msg = error["msg"]
+            error_messages.append(f"{idx}. {msg}: {loc}")
+    finally:
+        detail_msg = detail_msg + " " + "; ".join(error_messages)
 
     error_response = schema.ErrorResponse(
         status="error",
