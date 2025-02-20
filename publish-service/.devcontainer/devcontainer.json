@@ -26,6 +26,7 @@
 	],
     "forwardPorts": [8003],
     "postStartCommand": "uv sync",
+	"postCreateCommand": "bash ./.devcontainer/scripts/postCreate.sh",
 	"containerEnv": {
 		"DISPLAY": "dummy",
 		"PYTHONUNBUFFERED": "True",

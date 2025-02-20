@@ -19,6 +19,12 @@ RUN chown -R appuser:appuser /home/appuser
 # The mounted paths are at storage account level
 ENV TARGET_STORAGE_ACCOUNT_LSC_SDE_MNT_PATH="./outputs/lsc-sde"
 ENV TARGET_STORAGE_ACCOUNT_NW_SDE_MNT_PATH="./outputs/nw-sde"
+RUN mkdir -p ${TARGET_STORAGE_ACCOUNT_LSC_SDE_MNT_PATH}/staging
+RUN mkdir -p ${TARGET_STORAGE_ACCOUNT_LSC_SDE_MNT_PATH}/production
+RUN chown -R appuser:appuser ${TARGET_STORAGE_ACCOUNT_LSC_SDE_MNT_PATH}
+RUN mkdir -p ${TARGET_STORAGE_ACCOUNT_NW_SDE_MNT_PATH}/staging
+RUN mkdir -p ${TARGET_STORAGE_ACCOUNT_NW_SDE_MNT_PATH}/production
+RUN chown -R appuser:appuser ${TARGET_STORAGE_ACCOUNT_NW_SDE_MNT_PATH}
 
 # Keyvault secrets are mounted at K8S pod level
 ENV SECRETS_MNT_PATH="./secrets"
