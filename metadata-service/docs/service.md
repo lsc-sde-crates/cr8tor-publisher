@@ -10,13 +10,51 @@ has_children: true
 
 Used by the [CR8TOR solution](https://github.com/lsc-sde-crates/CR8TOR) to validate the definitions of the data in the repository against the datasets in the data source. This ensures that the metadata is correct and available without exposing the data to the CR8TOR service itself.
 
-The Metadata Service is based on [FastAPI](https://fastapi.tiangolo.com/) application, and its key activity is:
+The Metadata Service is based on [FastAPI](https://fastapi.tiangolo.com/) application, and its key activities are:
 
+- Validating source and destination connections
 - Retrieving metadata for the requested datasets from the specified source, e.g. Databricks Unity Catalog.
 
 The microservice has the following endpoints:
 
+- POST metadata/validate - validates the source and destination connections by checking if connections can be established.
+   - **Example Request:**
+
+     ```json
+     {
+       "project_name": "Pr004",
+       "project_start_time": "20250205_010101",
+       "destination_type": "LSC",
+       "destination_format": "duckdb",
+       "source": {
+         "name": "MyDatabricksConnection",
+         "type": "DatabricksSQL",
+         "host_url": "https://my-databricks-workspace.azuredatabricks.net",
+         "http_path": "/sql/1.0/warehouses/bd1395d4652aa599",
+         "port": 443,
+         "catalog": "catalog_name"
+       },
+       "credentials": {
+         "provider": "AzureKeyVault",
+         "spn_clientid": "databricks_spn_clientid",
+         "spn_secret": "databricks_spn_secret"
+      }
+     }  
+     
+     ```
+   - **Example Response:**
+
+     ```json
+     {
+         "status": "success",
+         "payload": {
+            "validation_status": "success"
+        }
+     }
+     ```
+
 - POST metadata/project
+
    - **Example Request:**
 
      ```json
@@ -125,7 +163,6 @@ The microservice has the following endpoints:
      }
      ```
 
-
 ## Configuration
 
 ### Configuration common for all services
@@ -137,6 +174,7 @@ See the main guide for the microservices, [located here](../../docs/services.md)
 Environment variables required:
 
 - `SECRETS_MNT_PATH`, default = ./secrets
+  Path to the folder where secrets are mounted.
 
 The authentication is static API key based and requires a secret:
 
