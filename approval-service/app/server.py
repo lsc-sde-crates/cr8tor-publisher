@@ -50,6 +50,7 @@ async def project_validate(
     log.info("Project start time: %s", payload["project_start_time"])
     log.info("Project destination: %s", payload["destination_type"])
 
+    res = await call_subservice(payload, "publish", "data-publish/validate", log)
     res = await call_subservice(payload, "metadata", "metadata/project", log)
 
     return schema.SuccessResponse(
