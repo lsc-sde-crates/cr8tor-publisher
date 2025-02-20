@@ -29,12 +29,18 @@ async def data_publish(
             project_payload,
         )
     )
-    # Ensure target directory exists
-    production_target_path.mkdir(parents=True, exist_ok=True)
-
     # Collect stored file paths
     log.info("Collect stored file paths...")
     files = utils.collect_stored_file_paths(staging_target_path)
+
+    # if no files are found, raise an error
+    if not files:
+        error_message = "No files found in Staging. Nothing to publish to Production."
+        log.error(error_message)
+        raise FileNotFoundError(error_message)
+
+    # Ensure target directory exists
+    production_target_path.mkdir(parents=True, exist_ok=True)
 
     # Move files to production
     for file in files:
