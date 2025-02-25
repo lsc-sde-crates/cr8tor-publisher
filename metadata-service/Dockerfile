@@ -1,5 +1,6 @@
 FROM python:3.12-slim
 
+
 # Create a non-root user and group
 RUN groupadd -r appuser && useradd -r -g appuser appuser
 
