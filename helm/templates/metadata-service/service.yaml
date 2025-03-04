@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-metadata-service
+  labels:
+    xlscsde.nhs.uk/app: {{ .Release.Name }}-metadata-service
+spec:
+  selector:
+    xlscsde.nhs.uk/app: {{ .Release.Name }}-metadata-service
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8002
+      targetPort: http
+type: ClusterIP
