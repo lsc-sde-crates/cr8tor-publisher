@@ -35,7 +35,7 @@ async def get_api_key(
         HTTPException: If none of the provided API keys match the stored API key, an HTTP 403 Forbidden exception is raised.
 
     """
-    if api_key_header == settings.approval_service_api_key:
+    if api_key_header == settings.approvalserviceapikey:
         return api_key_header
     raise HTTPException(
         status_code=status.HTTP_403_FORBIDDEN,
