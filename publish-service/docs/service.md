@@ -37,8 +37,8 @@ The microservice has the following endpoints, each serving a specific function:
        },
        "credentials": {
          "provider": "AzureKeyVault",
-         "spn_clientid": "databricks_spn_clientid",
-         "spn_secret": "databricks_spn_secret"
+         "spn_clientid": "databricksspnclientid",
+         "spn_secret": "databricksspnsecret"
        },
        "metadata": {
          "schema_name": "example_schema_name",
@@ -140,6 +140,6 @@ Environment variables required:
 
 The authentication is static API key based and requires a secret
 
-- `publish_service_api_key`
+- `publishserviceapikey`
 
-stored in the secret vault, e.g. Azure Key Vault. When working locally, the secret file should be stored under SECRETS_MNT_PATH folder, e.g. secrets/publish_service_api_key.
+stored in the secret vault, e.g. Azure Key Vault. When working locally, the secret file should be stored under SECRETS_MNT_PATH folder, e.g. secrets/publishserviceapikey.
