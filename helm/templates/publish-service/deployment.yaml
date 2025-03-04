@@ -26,6 +26,9 @@ spec:
       containers:
       - name: controller
         image: {{ .Values.publishService.image }}
+        ports:
+          - containerPort: 8003
+            name: http
         env:
         - name: NAMESPACE
           value: {{ .Release.Namespace }}
