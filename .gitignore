@@ -412,3 +412,6 @@ secrets/
 
 # UV venv
 .venv/
+
+# Environment variables file
+.env
