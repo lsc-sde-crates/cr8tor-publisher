@@ -7,11 +7,6 @@ metadata:
     {{ if .Values.ingress.annotations }}
     {{ toYaml .Values.ingress.annotations | nindent 4 }}
     {{ end }}
-    
-    nginx.ingress.kubernetes.io/ssl-redirect : "true"
-    nginx.ingress.kubernetes.io/force-ssl-redirect : "true"
-    nginx.ingress.kubernetes.io/proxy-body-size: 64m
-    xlscsde.nhs.uk/dns-record: cr8tor
 spec:
   ingressClassName: {{ .Values.ingress.className }}
   rules:
