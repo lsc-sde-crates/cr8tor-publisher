@@ -21,6 +21,7 @@ permissions:
   contents: write
   packages: write
 
+  
 jobs:
   semver:
     uses: lsc-sde/lsc-sde/.github/workflows/semver.yaml@main
