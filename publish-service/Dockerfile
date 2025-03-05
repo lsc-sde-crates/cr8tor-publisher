@@ -19,9 +19,21 @@ RUN chown -R appuser:appuser /home/appuser
 # The mounted paths are at storage account level
 ENV TARGET_STORAGE_ACCOUNT_LSC_SDE_MNT_PATH="./outputs/lsc-sde"
 ENV TARGET_STORAGE_ACCOUNT_NW_SDE_MNT_PATH="./outputs/nw-sde"
+RUN mkdir -p ${TARGET_STORAGE_ACCOUNT_LSC_SDE_MNT_PATH}/staging
+RUN mkdir -p ${TARGET_STORAGE_ACCOUNT_LSC_SDE_MNT_PATH}/production
+RUN chown -R appuser:appuser ${TARGET_STORAGE_ACCOUNT_LSC_SDE_MNT_PATH}
+RUN mkdir -p ${TARGET_STORAGE_ACCOUNT_NW_SDE_MNT_PATH}/staging
+RUN mkdir -p ${TARGET_STORAGE_ACCOUNT_NW_SDE_MNT_PATH}/production
+RUN chown -R appuser:appuser ${TARGET_STORAGE_ACCOUNT_NW_SDE_MNT_PATH}
 
 # Keyvault secrets are mounted at K8S pod level
-ENV KEYVAULT_SECRETS_MNT_PATH="./secrets"
+ENV SECRETS_MNT_PATH="./secrets"
+
+# DltHub Pipeline working directory where dltHub state files, logs and extracted data is temporarily stored
+# See https://dlthub.com/docs/general-usage/pipeline#pipeline-working-directory
+ENV DLTHUB_PIPELINE_WORKING_DIR="/home/appuser/dlt/pipelines"
+RUN mkdir -p ${DLTHUB_PIPELINE_WORKING_DIR}
+RUN chown -R appuser:appuser ${DLTHUB_PIPELINE_WORKING_DIR}
 
 # Install uv
 # Ref: https://docs.astral.sh/uv/guides/integration/docker/#installing-uv

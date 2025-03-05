@@ -2,8 +2,11 @@
 """Functions related to Databricks."""
 
 import base64
+import json
+from typing import Any
 
 import requests
+from fastapi import HTTPException, status
 
 from . import config
 
@@ -36,3 +39,51 @@ def get_access_token(hostname: str, spn_clientid: str, spn_secret: str) -> str:
 
     # Output the response
     return response.json()["access_token"]
+
+
+def handle_restapi_request(
+    url: str,
+    headers: dict,
+    params: dict,
+    listkey: str = "",
+    paginate: bool = False,
+) -> Any:
+    """Handle the request to the Databricks REST API."""
+    all_data = []
+    next_page_token = None
+
+    while True:
+        if next_page_token and paginate:
+            params["page_token"] = next_page_token
+
+        response = requests.get(url, headers=headers, params=params, timeout=120)
+
+        if response.status_code == status.HTTP_200_OK:
+            data = response.json()
+            if paginate:
+                all_data.extend(data.get(listkey, []))
+                next_page_token = data.get("next_page_token")
+                if not next_page_token:
+                    break
+            else:
+                return data
+        else:
+            if hasattr(response, "text"):
+                try:
+                    response_dict = json.loads(response.text)
+                    message = response_dict.get("message", "")
+                except json.JSONDecodeError:
+                    message = response.reason + response.text
+            else:
+                message = response.reason
+
+            print("Databricks API error:", response.status_code, message)
+            print("Databricks API url: ", getattr(response, "url", ""))
+            print("Databricks API body: ", getattr(response.request, "body", ""))
+
+            raise HTTPException(
+                status_code=response.status_code,
+                detail="Databricks API error: " + message,
+            )
+
+    return all_data if paginate else data

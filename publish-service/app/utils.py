@@ -18,7 +18,7 @@ EXPECTED_TARGET_FILE_PATTERNS = ["*.csv", "*.duckdb"]
 
 def get_target_paths(
     project_payload: schema.DataPublishContract,
-) -> tuple[Path, Path, Path]:
+) -> tuple[Path, Path, Path, Path, Path]:
     """Get the target paths for staging and production.
 
     Args:
@@ -48,7 +48,13 @@ def get_target_paths(
     staging_target_path = staging_container / storage_subpath
     production_target_path = production_container / storage_subpath
 
-    return staging_target_path, production_target_path, storage_mount_path
+    return (
+        staging_target_path,
+        production_target_path,
+        storage_mount_path,
+        staging_container,
+        production_container,
+    )
 
 
 def collect_stored_file_paths(

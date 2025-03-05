@@ -23,13 +23,12 @@ class DatabricksSourceConnection(DataSourceConnection):
     """Model for Databricks source connection."""
 
     host_url: HttpUrl = Field(description="dbs workspace URL")
+    http_path: str = Field(description="http path to the db cluster")
     port: int = Field(
         default=443,
         description="Port for the db cluster (defaults to 443)",
     )
     catalog: str = Field(description="Unity catalog name")
-    schema_name: str = Field(description="Schema name in UC")
-    table: list[str] | None = Field(default=None, description="Target table names")
 
 
 class DatabricksSourceAccessCredential(BaseModel):
@@ -65,15 +64,47 @@ class DataPublishContract(BaseModel):
     )
 
 
-class DataAccessContract(DataPublishContract):
-    """Model for data access contract."""
+class ValidationContract(DataPublishContract):
+    """Model for validating source and destination."""
 
+    destination_format: str = Field(
+        description="Target format for the data to be loaded",
+        enum=["CSV", "DUCKDB"],
+    )
     source: dict = Field(
         description="db connection details definition",
     )
     credentials: dict = Field(
         description="Auth provider and secrets key",
     )
+
+
+class DataPackageContract(ValidationContract):
+    """Model for data access contract."""
+
+    metadata: DatasetMetadata = Field(
+        description="Metadata for the requested tables",
+    )
+
+
+class ColumnMetadata(BaseModel):
+    """Model for column metadata."""
+
+    name: str = Field(description="Column name")
+
+
+class TableMetadata(BaseModel):
+    """Model for table metadata."""
+
+    name: str = Field(description="Table name")
+    columns: list[ColumnMetadata] = Field(description="List of columns")
+
+
+class DatasetMetadata(BaseModel):
+    """Model for dataset metadata."""
+
+    schema_name: str = Field(description="Schema name in UC")
+    tables: list[TableMetadata] = Field(description="Target table names")
 
 
 ###############################################################################

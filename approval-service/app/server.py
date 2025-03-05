@@ -44,7 +44,14 @@ async def project_validate(
         On Failure, returns the error message
 
     """
-    res = await call_subservice(payload, "metadata", "metadata/project")
+    log = config.setup_logger(f"ApprovalService Project {payload['project_name']}")
+    log.info("Calling Metadata Service endpoint for the requested project...")
+    log.info("Project: %s", payload["project_name"])
+    log.info("Project start time: %s", payload["project_start_time"])
+    log.info("Project destination: %s", payload["destination_type"])
+
+    res = await call_subservice(payload, "publish", "data-publish/validate", log)
+    res = await call_subservice(payload, "metadata", "metadata/project", log)
 
     return schema.SuccessResponse(
         status="success",
@@ -68,7 +75,13 @@ async def project_package(
         On Failure, returns the error message.
 
     """
-    res = await call_subservice(payload, "publish", "data-publish/package")
+    log = config.setup_logger(f"ApprovalService Project {payload['project_name']}")
+    log.info("Calling Publish Service - Package endpoint for the requested project...")
+    log.info("Project: %s", payload["project_name"])
+    log.info("Project start time: %s", payload["project_start_time"])
+    log.info("Project destination: %s", payload["destination_type"])
+
+    res = await call_subservice(payload, "publish", "data-publish/package", log)
 
     return schema.SuccessResponse(
         status="success",
@@ -92,7 +105,13 @@ async def project_publish(
         On Failure, returns the error message.
 
     """
-    res = await call_subservice(payload, "publish", "data-publish/publish")
+    log = config.setup_logger(f"ApprovalService Project {payload['project_name']}")
+    log.info("Calling Publish Service - Publish endpoint for the requested project...")
+    log.info("Project: %s", payload["project_name"])
+    log.info("Project start time: %s", payload["project_start_time"])
+    log.info("Project destination: %s", payload["destination_type"])
+
+    res = await call_subservice(payload, "publish", "data-publish/publish", log)
 
     return schema.SuccessResponse(
         status="success",
@@ -104,6 +123,7 @@ async def call_subservice(
     payload: dict[str, Any],
     service: str,
     endpoint: str,
+    log: config.logging.Logger,
 ) -> dict[str, Any]:
     """Call a subservice with the given payload and return the response.
 
@@ -124,6 +144,8 @@ async def call_subservice(
     container_port = getattr(settings, f"{service}_container_port")
     api_key = getattr(settings, f"{service}_service_api_key")
     url_base = f"http://{container_name}:{container_port}/"
+
+    log.info("URL: %s", url_base + endpoint)
     try:
         async with httpx.AsyncClient() as client:
             response = await client.post(
@@ -144,7 +166,7 @@ async def call_subservice(
         ) from exc
     except httpx.RequestError:
         detail = f"Error connecting to the {service} service. Base url: {url_base}"
-        print(detail)
+        log.exception(detail)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=detail,
