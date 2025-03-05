@@ -19,6 +19,10 @@ spec:
         {{- toYaml .Values.approvalService.tolerations | nindent 8 }}
         
       volumes:
+      - name: secrets-store-inline
+        secret:
+          secretName: {{ .Values.approvalService.config.secrets.name }}
+
       {{ if .Values.approvalService.volumes }}
       {{ toYaml .Values.approvalService.volumes | nindent 6 }}
       {{ end }}
@@ -29,11 +33,20 @@ spec:
         env:
         - name: NAMESPACE
           value: {{ .Release.Namespace }}
+
+        - name: KEYVAULT_SECRETS_MNT_PATH
+          value: {{ .Values.approvalService.config.secretsMountPath }}
+
         {{ if .Values.approvalService.env }}
         {{ toYaml .Values.approvalService.env | nindent 8 }}
         {{ end }}
         
         volumeMounts:
+
+        - name: secrets-store-inline
+          mountPath: {{ .Values.approvalService.config.secrets.mountPath }}
+          readOnly: true
+
         {{ if .Values.approvalService.volumeMounts }}
         {{ toYaml .Values.approvalService.volumeMounts | nindent 8 }}
         {{ end }}

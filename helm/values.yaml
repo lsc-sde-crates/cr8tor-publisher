@@ -1,4 +1,8 @@
 approvalService:
+  config:
+    secrets:
+      name: approval-service
+      mountPath: /home/appuser/secrets
   replicas: 1
   image: lscsde/cr8tor-approval-service:latest
   nodeSelector: {}
@@ -9,6 +13,10 @@ approvalService:
   resources: {}
 
 metadataService:
+  config:
+    secrets:
+      name: metadata-service
+      mountPath: /home/appuser/secrets
   replicas: 1
   image: lscsde/cr8tor-metadata-service:latest
   nodeSelector: {}
@@ -19,6 +27,11 @@ metadataService:
   resources: {}
 
 publishService:
+  config:
+    secrets:
+      name: publish-service
+      mountPath: /home/appuser/secrets
+      
   replicas: 1
   image: lscsde/cr8tor-publish-service:latest
   nodeSelector: {}
@@ -27,4 +40,41 @@ publishService:
   volumeMounts: []
   env: []
   resources: {}
-  
+
+storage: 
+  lsc:
+    env: TARGET_STORAGE_ACCOUNT_LSC_SDE_MNT_PATH
+    mountPath: /home/appuser/outputs/lsc
+    pvcs:
+      staging:
+        name: lsc-staging
+        create: true
+        storageClassName: cr8tor-lsc-staging
+        accessModes:
+        - ReadWriteOnce
+
+      prod:
+        name: lsc-prod
+        create: true
+        storageClassName: cr8tor-lsc-prod
+        accessModes:
+        - ReadWriteOnce
+  nw:
+    env: TARGET_STORAGE_ACCOUNT_NW_SDE_MNT_PATH
+    mountPath: /home/appuser/outputs/nw
+    pvcs:
+      staging:
+        name: nw-staging
+        create: true
+        storageClassName: cr8tor-nw-staging
+        accessModes:
+        - ReadWriteOnce
+
+      prod:
+        name: nw-prod
+        create: true
+        storageClassName: cr8tor-nw-prod
+        accessModes:
+        - ReadWriteOnce
+
+    

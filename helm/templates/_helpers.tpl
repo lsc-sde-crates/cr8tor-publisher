@@ -8,8 +8,8 @@ the name to be used by the publisher service
 {{/*
 the name to be used by the publisher service
 */}}
-{{- define "publisher.name" -}}
-{{- printf "%s-publisher" .Release.Name }}
+{{- define "publish.name" -}}
+{{- printf "%s-publish" .Release.Name }}
 {{- end }}
 
 {{/*
@@ -17,4 +17,18 @@ the name to be used by the metadata service
 */}}
 {{- define "metadata.name" -}}
 {{- printf "%s-metadata" .Release.Name }}
+{{- end }}
+
+
+{{/*
+the name of pvc's internally
+*/}}
+{{- define "inline.volume.name" -}}
+{{- printf "%s-%s-inline" .org .pvc }}
+{{- end }}
+{{/*
+the name of pvc's internally
+*/}}
+{{- define "inline.volume.mountPath" -}}
+{{- printf "%s/%s" .mountPath .pvc }}
 {{- end }}

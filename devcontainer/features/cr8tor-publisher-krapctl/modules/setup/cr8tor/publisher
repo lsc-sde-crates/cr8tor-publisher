@@ -1,0 +1,82 @@
+. /etc/k3d/setup/environment
+
+if [ -f "/usr/lib/cr8tor-publisher-krapctl/etc/environment" ]; then
+    . /usr/lib/cr8tor-publisher-krapctl/etc/environment
+fi
+
+if [ -z "${NAMESPACE}" ]; then
+    NAMESPACE="cr8tor-publisher"
+fi
+
+
+if [ -z "${APPROVAL_SERVICE_IMAGE_DEFINITION}" ]; then
+    APPROVAL_SERVICE_IMAGE_DEFINITION="/workspaces/lsc-sde/products/sde/data-ingestion/cr8tor-publisher/approval-service"
+fi
+
+if [ -z "${METADATA_SERVICE_IMAGE_DEFINITION}" ]; then
+    METADATA_SERVICE_IMAGE_DEFINITION="/workspaces/lsc-sde/products/sde/data-ingestion/cr8tor-publisher/metadata-service"
+fi
+
+if [ -z "${PUBLISH_SERVICE_IMAGE_DEFINITION}" ]; then
+    PUBLISH_SERVICE_IMAGE_DEFINITION="/workspaces/lsc-sde/products/sde/data-ingestion/cr8tor-publisher/publish-service"
+fi
+
+if [ -z "${HELM_CHART}" ]; then
+    HELM_CHART="/workspaces/lsc-sde/products/sde/data-ingestion/cr8tor-publisher/helm"
+fi
+
+if [ -z "${KUSTOMIZE_PATH}" ]; then
+    KUSTOMIZE_PATH="/workspaces/lsc-sde/products/sde/data-ingestion/cr8tor-publisher/fluxcd"
+fi
+
+
+export CURRENT_DATE=$(date '+%Y%m%d%H%M%S')
+WORK_FOLDER="/usr/lib/cr8tor-publisher-krapctl/work/${CURRENT_DATE}"
+CURRENT_FOLDER=$(pwd)
+
+#krapctl setup trustmanager
+#krapctl setup nginx
+#krapctl setup keycloak
+
+export REGISTRY_NAME
+export REGISTRY_PORT
+export APPROVAL_SERVICE_IMAGE_NAME="${REGISTRY_NAME}:${REGISTRY_PORT}/cr8tor-approval-service:${CURRENT_DATE}"
+export METADATA_SERVICE_IMAGE_NAME="${REGISTRY_NAME}:${REGISTRY_PORT}/cr8tor-metadata-service:${CURRENT_DATE}"
+export PUBLISH_SERVICE_IMAGE_NAME="${REGISTRY_NAME}:${REGISTRY_PORT}/cr8tor-publish-service:${CURRENT_DATE}"
+export cr8tor_publisher_namespace="${NAMESPACE}"
+export cr8tor_approval_service_image="${APPROVAL_SERVICE_IMAGE_NAME}"
+export cr8tor_metadata_service_image="${METADATA_SERVICE_IMAGE_NAME}"
+export cr8tor_publish_service_image="${PUBLISH_SERVICE_IMAGE_NAME}"
+
+mkdir -p "${WORK_FOLDER}"
+
+krapctl_docker_build_and_push "${APPROVAL_SERVICE_IMAGE_DEFINITION}" "${APPROVAL_SERVICE_IMAGE_NAME}"
+krapctl_docker_build_and_push "${METADATA_SERVICE_IMAGE_DEFINITION}" "${METADATA_SERVICE_IMAGE_NAME}"
+krapctl_docker_build_and_push "${PUBLISH_SERVICE_IMAGE_DEFINITION}" "${PUBLISH_SERVICE_IMAGE_NAME}"
+
+cd "${WORK_FOLDER}"
+
+krapctl_create_namespace "${NAMESPACE}"
+kubectl label "namespace/${NAMESPACE}" xlscsde.local/inject=enabled
+
+kubectl get secret/approval-service -n "${NAMESPACE}" > /dev/null
+if [ $? -eq 1 ]; then
+  kubectl create secret generic approval-service -n "${NAMESPACE}" --from-literal=approval_service_api_key=test-api
+fi
+
+kubectl get secret/publish-service -n "${NAMESPACE}" > /dev/null
+if [ $? -eq 1 ]; then
+  kubectl create secret generic publish-service -n "${NAMESPACE}" --from-literal=test-client-id=1a7b4850-7785-4cc9-847e-e85edadaa8b3 --from-literal=test-client-secret=testing123 --from-literal=approval_service_api_key=test-api
+fi
+
+kubectl get secret/metadata-service -n "${NAMESPACE}" > /dev/null
+if [ $? -eq 1 ]; then
+  kubectl create secret generic metadata-service -n "${NAMESPACE}" --from-literal=test-client-id=1a7b4850-7785-4cc9-847e-e85edadaa8b3 --from-literal=test-client-secret=testing123 --from-literal=approval_service_api_key=test-api
+fi
+
+kubectl kustomize "${KUSTOMIZE_PATH}/devcontainer" | envsubst > ./devcontainer.yaml
+kubectl apply -f ./devcontainer.yaml
+
+krapctl_helm_upgrade "${NAMESPACE}" cr8tor-publisher "${HELM_CHART}" "${KUSTOMIZE_PATH}/config.yaml"
+
+cd "${CURRENT_FOLDER}"
