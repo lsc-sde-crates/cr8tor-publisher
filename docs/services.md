@@ -31,9 +31,9 @@ Authentication for all microservices is implemented through a static API key. Th
 
 Each service has dedicated environment variable which should be stored in secret vault, (e.g. Azure Key Vault):
 
-- publishserviceapikey for Publish Service
-- metadataserviceapikey for Metadata Service
-- approvalserviceapikey for Approval Service
+- publish_service_api_key for Publish Service
+- metadata_service_api_key for Metadata Service
+- approval_service_api_key for Approval Service
 
 ## Docker network
 
@@ -59,8 +59,8 @@ At the moment, the creation of service principal (SPN) is not automated and requ
 Once the service principal is created [see docs](https://learn.microsoft.com/en-gb/azure/databricks/admin/users-groups/service-principals#add-a-service-principal-to-a-workspace-using-the-workspace-admin-settings) we need to:
 
 1. Add the following secrets to the chosen key vault resource, e.g., Azure KeyVault:
-   - `databricksspnclientid` which contains spn ClientID
-   - `databricksspnsecret` which contains the secret generated in Databricks for the given service principal
+   - `databricks_spn_clientid` which contains spn ClientID
+   - `databricks_spn_secret` which contains the secret generated in Databricks for the given service principal
 
 2. Grant service principal access to the SQL Warehouse cluster. Minimum required permission: CAN USE. 
    Follow [Databricks docs](https://learn.microsoft.com/en-gb/azure/databricks/compute/sql-warehouse/create#manage-a-sql-warehouse) to add the permission.
