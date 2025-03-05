@@ -22,23 +22,53 @@ permissions:
   packages: write
 
 jobs:
-  buildandpush:
-    uses: lsc-sde/lsc-sde/.github/workflows/ghcr-release.yaml@main
+  semver:
+    uses: lsc-sde/lsc-sde/.github/workflows/semver.yaml@main
+    with:
+      useConfigFile: true
+
+  approval_service:
+    uses: lsc-sde/lsc-sde/.github/workflows/ghcr-build.yaml@main
+    needs: semver
     with:
       imageName: cr8tor-approval-service
+      tag: ${{ needs.semver.outputs.GitVersion_SemVer }}
       directory: products/sde/data-ingestion/cr8tor-publisher
       platforms: '["amd64"]'
-      # yamlPath: cr8tor_approval_service
+      runnerType: ubuntu-latest
       pathToImageDefinition: ./approval-service/
-      updateSubmodule: false
     secrets: inherit
-  
+
+  publish_service:
+    uses: lsc-sde/lsc-sde/.github/workflows/ghcr-build.yaml@main
+    needs: semver
+    with:
+      imageName: cr8tor-publish-service
+      tag: ${{ needs.semver.outputs.GitVersion_SemVer }}
+      directory: products/sde/data-ingestion/cr8tor-publisher
+      platforms: '["amd64"]'
+      runnerType: ubuntu-latest
+      pathToImageDefinition: ./publish-service/
+    secrets: inherit
+
+  metadata_service:
+    uses: lsc-sde/lsc-sde/.github/workflows/ghcr-build.yaml@main
+    needs: semver
+    with:
+      imageName: cr8tor-publish-service
+      tag: ${{ needs.semver.outputs.GitVersion_SemVer }}
+      directory: products/sde/data-ingestion/cr8tor-publisher
+      platforms: '["amd64"]'
+      runnerType: ubuntu-latest
+      pathToImageDefinition: ./metadata-service/
+    secrets: inherit
+
   helm_package:
     uses: lsc-sde/lsc-sde/.github/workflows/helm-package.yaml@main
     needs: 
-    - buildandpush
+    - semver
     with:
-      symver: ${{ needs.buildandpush.outputs.GitVersion_SemVer }}
+      symver: ${{ needs.semver.outputs.GitVersion_SemVer }}
       directory: products/sde/data-ingestion/cr8tor-publisher
       subdirectory: "/helm"
       switchMain: false
