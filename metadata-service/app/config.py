@@ -16,7 +16,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     """Configuration settings for the application."""
 
-    metadata_service_api_key: str = Field(default="default_key")
+    metadataserviceapikey: str = Field(default="default_key")
     app_name: str = Field(default="My App")
     environment: str = Field(default="local")
     cookie_domain: str = Field(default="localhost")
