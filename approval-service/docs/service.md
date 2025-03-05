@@ -49,11 +49,11 @@ Environment variables required:
 
 The authentication is based on a static API key and requires a secret
 
-- `approval_service_api_key`
+- `approvalserviceapikey`
 
-stored in the secret vault, e.g. Azure Key Vault. When working locally, the secret file should be stored under SECRETS_MNT_PATH folder, e.g. secrets/approval_service_api_key.
+stored in the secret vault, e.g. Azure Key Vault. When working locally, the secret file should be stored under SECRETS_MNT_PATH folder, e.g. secrets/approvalserviceapikey.
 
 The Approval Service expects following secrets in the Key Vault, so it can make a valid calls to Metadata and Publish Services:
 
-- `metadata_service_api_key`
-- `publish_service_api_key`
+- `metadataserviceapikey`
+- `publishserviceapikey`
