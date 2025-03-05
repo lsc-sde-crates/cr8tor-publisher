@@ -33,7 +33,6 @@ jobs:
     with:
       imageName: cr8tor-approval-service
       tag: ${{ needs.semver.outputs.GitVersion_SemVer }}
-      directory: products/sde/data-ingestion/cr8tor-publisher
       platforms: '["amd64"]'
       runnerType: ubuntu-latest
       pathToImageDefinition: ./approval-service/
@@ -45,7 +44,6 @@ jobs:
     with:
       imageName: cr8tor-publish-service
       tag: ${{ needs.semver.outputs.GitVersion_SemVer }}
-      directory: products/sde/data-ingestion/cr8tor-publisher
       platforms: '["amd64"]'
       runnerType: ubuntu-latest
       pathToImageDefinition: ./publish-service/
@@ -57,7 +55,6 @@ jobs:
     with:
       imageName: cr8tor-publish-service
       tag: ${{ needs.semver.outputs.GitVersion_SemVer }}
-      directory: products/sde/data-ingestion/cr8tor-publisher
       platforms: '["amd64"]'
       runnerType: ubuntu-latest
       pathToImageDefinition: ./metadata-service/
