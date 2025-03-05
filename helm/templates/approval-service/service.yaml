@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+  labels:
+    app: {{ include "approval.name" . }}
+  name: {{ include "approval.name" . }}
+spec:
+  type: {{ .Values.service.type }}
+  sessionAffinity: None
+  selector:
+    app: {{ include "approval.name" . }}
+  ports:
+  - name: http
+    port: 8000
+    targetPort: 8000

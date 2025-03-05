@@ -41,6 +41,21 @@ publishService:
   env: []
   resources: {}
 
+service:
+  type: ClusterIP
+
+ingress:
+  enabled: true
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect : "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect : "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: 64m
+    xlscsde.nhs.uk/dns-record: cr8tor
+  className: nginx
+  host: dev-cr8tor.xlscsde.nhs.uk
+  tls:
+    secretName: dev-cr8tor.xlscsde.nhs.uk-tls
+
 storage: 
   lsc:
     env: TARGET_STORAGE_ACCOUNT_LSC_SDE_MNT_PATH

@@ -6,11 +6,11 @@ spec:
   replicas: {{ .Values.metadataService.replicas }}
   selector:
     matchLabels:
-      app: {{ .Release.Name }}
+      app: {{ include "metadata.name" . }}
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}
+        app: {{ include "metadata.name" . }}
     spec:
       serviceAccountName: {{ include "metadata.name" . }}
       nodeSelector:

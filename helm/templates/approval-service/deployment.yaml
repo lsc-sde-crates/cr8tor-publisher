@@ -6,11 +6,11 @@ spec:
   replicas: {{ .Values.approvalService.replicas }}
   selector:
     matchLabels:
-      app: {{ .Release.Name }}
+      app: {{ include "approval.name" . }}
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}
+        app: {{ include "approval.name" . }}
     spec:
       serviceAccountName: {{ include "approval.name" . }}
       nodeSelector:
@@ -36,6 +36,12 @@ spec:
 
         - name: KEYVAULT_SECRETS_MNT_PATH
           value: {{ .Values.approvalService.config.secretsMountPath }}
+
+        - name: METADATA_CONTAINER_NAME
+          value: {{ include "metadata.name" . }}
+
+        - name: PUBLISH_CONTAINER_NAME
+          value: {{ include "publish.name" . }}
 
         {{ if .Values.approvalService.env }}
         {{ toYaml .Values.approvalService.env | nindent 8 }}
