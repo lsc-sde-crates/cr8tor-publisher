@@ -73,14 +73,14 @@ storage:
         create: true
         storageClassName: cr8tor-lsc-staging
         accessModes:
-        - ReadWriteOnce
+        - ReadWriteMany
 
       prod:
         name: lsc-prod
         create: true
         storageClassName: cr8tor-lsc-prod
         accessModes:
-        - ReadWriteOnce
+        - ReadWriteMany
   nw:
     env: TARGET_STORAGE_ACCOUNT_NW_SDE_MNT_PATH
     mountPath: /home/appuser/outputs/nw
@@ -90,13 +90,13 @@ storage:
         create: true
         storageClassName: cr8tor-nw-staging
         accessModes:
-        - ReadWriteOnce
+        - ReadWriteMany
 
       prod:
         name: nw-prod
         create: true
         storageClassName: cr8tor-nw-prod
         accessModes:
-        - ReadWriteOnce
+        - ReadWriteMany
 
     
