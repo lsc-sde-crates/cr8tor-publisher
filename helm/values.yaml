@@ -1,13 +1,16 @@
 approvalService:
   config:
     secrets:
-      name: approval-service
       mountPath: /home/appuser/secrets
   replicas: 1
   image: lscsde/cr8tor-approval-service:latest
   nodeSelector: {}
   tolerations: []
-  volumes: []
+  volumes: 
+  - name: secrets-store-inline
+    secret:
+      secretName: approval-service
+
   volumeMounts: []
   env: []
   resources: {}
@@ -15,13 +18,15 @@ approvalService:
 metadataService:
   config:
     secrets:
-      name: metadata-service
       mountPath: /home/appuser/secrets
   replicas: 1
   image: lscsde/cr8tor-metadata-service:latest
   nodeSelector: {}
   tolerations: []
-  volumes: []
+  volumes: 
+  - name: secrets-store-inline
+    secret:
+      secretName: metadata-service
   volumeMounts: []
   env: []
   resources: {}
@@ -29,14 +34,16 @@ metadataService:
 publishService:
   config:
     secrets:
-      name: publish-service
       mountPath: /home/appuser/secrets
       
   replicas: 1
   image: lscsde/cr8tor-publish-service:latest
   nodeSelector: {}
   tolerations: []
-  volumes: []
+  volumes: 
+  - name: secrets-store-inline
+    secret:
+      secretName: publish-service
   volumeMounts: []
   env: []
   resources: {}

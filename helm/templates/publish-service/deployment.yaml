@@ -19,10 +19,6 @@ spec:
         {{- toYaml .Values.publishService.tolerations | nindent 8 }}
         
       volumes:  
-      - name: secrets-store-inline
-        secret:
-          secretName: {{ .Values.publishService.config.secrets.name }}
-
       {{ range $orgKey, $orgValue := .Values.storage }}
       {{ range $pvcKey, $pvcValue := $orgValue.pvcs }}
       {{- $values := dict "org" $orgKey "pvc" $pvcKey -}}

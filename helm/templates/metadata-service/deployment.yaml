@@ -19,10 +19,6 @@ spec:
         {{- toYaml .Values.metadataService.tolerations | nindent 8 }}
         
       volumes:
-      - name: secrets-store-inline
-        secret:
-          secretName: {{ .Values.metadataService.config.secrets.name }}
-
       {{ if .Values.metadataService.volumes }}
       {{ toYaml .Values.metadataService.volumes | nindent 6 }}
       {{ end }}

@@ -19,10 +19,6 @@ spec:
         {{- toYaml .Values.approvalService.tolerations | nindent 8 }}
         
       volumes:
-      - name: secrets-store-inline
-        secret:
-          secretName: {{ .Values.approvalService.config.secrets.name }}
-
       {{ if .Values.approvalService.volumes }}
       {{ toYaml .Values.approvalService.volumes | nindent 6 }}
       {{ end }}
