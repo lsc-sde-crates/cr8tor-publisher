@@ -1,0 +1,8 @@
+approvalService:
+  image: "${cr8tor_approval_service_image}"
+metadataService:
+  image: "${cr8tor_metadata_service_image}"
+publishService:
+  image: "${cr8tor_publish_service_image}"
+
+    

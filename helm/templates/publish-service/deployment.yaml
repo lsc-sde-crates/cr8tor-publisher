@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "publish.name" . }}
+spec:
+  replicas: {{ .Values.publishService.replicas }}
+  selector:
+    matchLabels:
+      app: {{ include "publish.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "publish.name" . }}
+    spec:
+      serviceAccountName: {{ include "publish.name" . }}
+      nodeSelector:
+        {{- toYaml .Values.publishService.nodeSelector | nindent 8 }}
+      tolerations:
+        {{- toYaml .Values.publishService.tolerations | nindent 8 }}
+        
+      volumes:  
+      {{ range $orgKey, $orgValue := .Values.storage }}
+      {{ range $pvcKey, $pvcValue := $orgValue.pvcs }}
+      {{- $values := dict "org" $orgKey "pvc" $pvcKey -}}
+      - name: {{ include "inline.volume.name" $values  }}
+        persistentVolumeClaim:
+          claimName: {{ $pvcValue.name }}
+
+      {{ end }}
+      {{ end }}
+
+
+      {{ if .Values.publishService.volumes }}
+      {{ toYaml .Values.publishService.volumes | nindent 6 }}
+      {{ end }}
+
+      containers:
+      - name: controller
+        image: {{ .Values.publishService.image }}
+        env:
+        - name: NAMESPACE
+          value: {{ .Release.Namespace }}
+        
+        {{ range $orgKey, $orgValue := .Values.storage }}
+        
+        - name: {{ $orgValue.env }}
+          value: {{ $orgValue.mountPath }}
+        
+        {{ end }}
+
+        - name: KEYVAULT_SECRETS_MNT_PATH
+          value: {{ .Values.publishService.config.secrets.mountPath }}
+
+        {{ if .Values.publishService.env }}
+        {{ toYaml .Values.publishService.env | nindent 8 }}
+        {{ end }}
+        
+        volumeMounts:
+        {{ range $orgKey, $orgValue := .Values.storage }}
+        {{ range $pvcKey, $pvcValue := $orgValue.pvcs }}
+        {{- $values := dict "org" $orgKey "pvc" $pvcKey "mountPath" $orgValue.mountPath -}}
+        - name: {{ include "inline.volume.name" $values  }}
+          mountPath: {{ include "inline.volume.mountPath" $values  }}
+            
+        {{ end }}
+        {{ end }}
+
+        - name: secrets-store-inline
+          mountPath: {{ .Values.publishService.config.secrets.mountPath }}
+          readOnly: true
+
+        {{ if .Values.publishService.volumeMounts }}
+        {{ toYaml .Values.publishService.volumeMounts | nindent 8 }}
+        {{ end }}
+          
+        resources:
+          {{- toYaml .Values.publishService.resources | nindent 10 }}

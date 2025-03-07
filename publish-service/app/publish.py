@@ -53,7 +53,7 @@ async def data_publish(
 
         # Move file to production
         try:
-            file.rename(destination_path)
+            shutil.move(str(file), str(destination_path))
         except OSError as e:
             error_message = f"Failure moving file from staging to production: {e}"
             log.exception(error_message)
