@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+  labels:
+    app: {{ include "publish.name" . }}
+  name: {{ include "publish.name" . }}
+spec:
+  type: {{ .Values.service.type }}
+  sessionAffinity: None
+  selector:
+    app: {{ include "publish.name" . }}
+  ports:
+  - name: http
+    port: 8003
+    targetPort: 8003

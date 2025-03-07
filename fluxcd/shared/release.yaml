@@ -1,0 +1,32 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: cr8tor-publisher
+  namespace: ${cr8tor_publisher_namespace}
+  annotations:
+    xlscsde.nhs.uk/flux-branch: ${cr8tor_publisher_branch}
+spec:
+  targetNamespace: ${cr8tor_publisher_namespace}
+  releaseName: cr8tor-publisher
+  chart:
+    spec:
+      chart: cr8tor-publisher
+      version: ${cr8tor_publisher_chart_version}
+      sourceRef:
+        kind: HelmRepository
+        name: cr8tor-publisher
+        namespace: ${cr8tor_publisher_namespace}
+  interval: 5m0s
+  install:
+    remediation:
+      retries: -1
+    disableWait: true
+    disableWaitForJobs: true
+  upgrade:
+    remediation:
+      retries: -1
+    disableWait: true
+    disableWaitForJobs: true
+  valuesFrom:
+  - kind: ConfigMap
+    name: cr8tor-helm-config
