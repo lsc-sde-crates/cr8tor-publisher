@@ -233,7 +233,7 @@ storage:
         name: lsc-staging
         create: false
 
-      prod:
+      production:
         name: lsc-prod
         create: false
   nw:
@@ -242,7 +242,7 @@ storage:
         name: nw-staging
         create: false
 
-      prod:
+      production:
         name: nw-prod
         create: false
 ```
