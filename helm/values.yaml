@@ -75,7 +75,7 @@ storage:
         accessModes:
         - ReadWriteMany
 
-      prod:
+      production:
         name: lsc-prod
         create: true
         storageClassName: cr8tor-lsc-prod
@@ -92,7 +92,7 @@ storage:
         accessModes:
         - ReadWriteMany
 
-      prod:
+      production:
         name: nw-prod
         create: true
         storageClassName: cr8tor-nw-prod
