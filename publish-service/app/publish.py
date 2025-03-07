@@ -2,6 +2,7 @@
 """Functions related to publishing stage of endpoint."""
 
 import shutil
+import os
 from pathlib import Path
 
 from bagit import generate_manifest_lines
@@ -53,7 +54,12 @@ async def data_publish(
 
         # Move file to production
         try:
-            shutil.move(str(file), str(destination_path))
+            # Copy file to destination
+            with open(file, 'rb') as src_file:
+                with open(destination_path, 'wb') as dest_file:
+                    dest_file.write(src_file.read())
+            # Remove the original file
+            os.remove(file)
         except OSError as e:
             error_message = f"Failure moving file from staging to production: {e}"
             log.exception(error_message)
