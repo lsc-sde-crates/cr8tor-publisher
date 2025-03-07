@@ -142,7 +142,7 @@ async def call_subservice(
     settings = config.get_settings()
     container_name = getattr(settings, f"{service}_container_name")
     container_port = getattr(settings, f"{service}_container_port")
-    api_key = getattr(settings, f"{service}_service_api_key")
+    api_key = getattr(settings, f"{service}serviceapikey")
     url_base = f"http://{container_name}:{container_port}/"
 
     log.info("URL: %s", url_base + endpoint)
