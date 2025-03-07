@@ -1,0 +1,102 @@
+approvalService:
+  config:
+    secrets:
+      mountPath: /home/appuser/secrets
+  replicas: 1
+  image: lscsde/cr8tor-approval-service:latest
+  nodeSelector: {}
+  tolerations: []
+  volumes: 
+  - name: secrets-store-inline
+    secret:
+      secretName: approval-service
+
+  volumeMounts: []
+  env: []
+  resources: {}
+
+metadataService:
+  config:
+    secrets:
+      mountPath: /home/appuser/secrets
+  replicas: 1
+  image: lscsde/cr8tor-metadata-service:latest
+  nodeSelector: {}
+  tolerations: []
+  volumes: 
+  - name: secrets-store-inline
+    secret:
+      secretName: metadata-service
+  volumeMounts: []
+  env: []
+  resources: {}
+
+publishService:
+  config:
+    secrets:
+      mountPath: /home/appuser/secrets
+      
+  replicas: 1
+  image: lscsde/cr8tor-publish-service:latest
+  nodeSelector: {}
+  tolerations: []
+  volumes: 
+  - name: secrets-store-inline
+    secret:
+      secretName: publish-service
+  volumeMounts: []
+  env: []
+  resources: {}
+
+service:
+  type: ClusterIP
+
+ingress:
+  enabled: true
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect : "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect : "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: 64m
+    xlscsde.nhs.uk/dns-record: cr8tor
+  className: nginx
+  host: dev-cr8tor.xlscsde.nhs.uk
+  tls:
+    secretName: dev-cr8tor.xlscsde.nhs.uk-tls
+
+storage: 
+  lsc:
+    env: TARGET_STORAGE_ACCOUNT_LSC_SDE_MNT_PATH
+    mountPath: /home/appuser/outputs/lsc
+    pvcs:
+      staging:
+        name: lsc-staging
+        create: true
+        storageClassName: cr8tor-lsc-staging
+        accessModes:
+        - ReadWriteMany
+
+      prod:
+        name: lsc-prod
+        create: true
+        storageClassName: cr8tor-lsc-prod
+        accessModes:
+        - ReadWriteMany
+  nw:
+    env: TARGET_STORAGE_ACCOUNT_NW_SDE_MNT_PATH
+    mountPath: /home/appuser/outputs/nw
+    pvcs:
+      staging:
+        name: nw-staging
+        create: true
+        storageClassName: cr8tor-nw-staging
+        accessModes:
+        - ReadWriteMany
+
+      prod:
+        name: nw-prod
+        create: true
+        storageClassName: cr8tor-nw-prod
+        accessModes:
+        - ReadWriteMany
+
+    

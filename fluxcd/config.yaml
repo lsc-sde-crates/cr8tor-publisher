@@ -1,0 +1,23 @@
+approvalService:
+  image: "${cr8tor_approval_service_image}"
+metadataService:
+  image: "${cr8tor_metadata_service_image}"
+publishService:
+  image: "${cr8tor_publish_service_image}"
+
+storage:
+  lsc:
+    pvcs:
+      staging:
+        storageClassName: cr8tor-publisher-default
+      prod:
+        storageClassName: cr8tor-publisher-default
+  nw:
+    pvcs:
+      staging:
+        storageClassName: cr8tor-publisher-default
+
+      prod:
+        storageClassName: cr8tor-publisher-default
+
+    

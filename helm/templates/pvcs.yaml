@@ -1,0 +1,19 @@
+{{- range $orgKey, $orgValue := .Values.storage -}}
+{{- range $pvcKey, $pvcValue := $orgValue.pvcs -}}
+{{ if $pvcValue.create }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ $pvcValue.name }}
+spec:
+  accessModes:
+    {{ toYaml $pvcValue.accessModes | nindent 4 }}
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: {{ $pvcValue.storageClassName }}
+  volumeMode: Filesystem
+---
+{{ end }}
+{{- end -}}
+{{- end -}}
