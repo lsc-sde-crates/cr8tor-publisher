@@ -54,12 +54,7 @@ async def data_publish(
 
         # Move file to production
         try:
-            # Copy file to destination
-            with open(file, 'rb') as src_file:
-                with open(destination_path, 'wb') as dest_file:
-                    dest_file.write(src_file.read())
-            # Remove the original file
-            os.remove(file)
+            shutil.move(str(file), str(destination_path))
         except OSError as e:
             error_message = f"Failure moving file from staging to production: {e}"
             log.exception(error_message)
