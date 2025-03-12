@@ -1,0 +1,40 @@
+approvalService:
+  image: "${cr8tor_approval_service_image}"
+  volumes:
+  - name: secrets-store-inline
+    csi:
+      driver: secrets-store.csi.k8s.io
+      readOnly: true
+      volumeAttributes:
+        secretProviderClass: "cr8tor"
+metadataService:
+  image: "${cr8tor_metadata_service_image}"
+  volumes:
+  - name: secrets-store-inline
+    csi:
+      driver: secrets-store.csi.k8s.io
+      readOnly: true
+      volumeAttributes:
+        secretProviderClass: "cr8tor"
+publishService:
+  image: "${cr8tor_publish_service_image}"
+  volumes:
+  - name: secrets-store-inline
+    csi:
+      driver: secrets-store.csi.k8s.io
+      readOnly: true
+      volumeAttributes:
+        secretProviderClass: "cr8tor"
+
+ingress:
+  enabled: true
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect : "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect : "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: 64m
+    xlscsde.nhs.uk/dns-record: cr8tor
+  className: nginx
+  host: ${dns_prefix}cr8tor.${private_dnz_zone}
+  tls:
+    secretName: ${dns_prefix}cr8tor.${private_dnz_zone}-tls
+
