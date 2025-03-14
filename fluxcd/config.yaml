@@ -9,15 +9,37 @@ storage:
   lsc:
     pvcs:
       staging:
+        name: lsc-staging-local
         storageClassName: cr8tor-publisher-default
-      prod:
+        accessModes:
+        - ReadWriteOnce
+      production:
+        name: lsc-prod-local
         storageClassName: cr8tor-publisher-default
+        accessModes:
+        - ReadWriteOnce
   nw:
     pvcs:
       staging:
+        name: nw-staging-local
         storageClassName: cr8tor-publisher-default
+        accessModes:
+        - ReadWriteOnce
 
-      prod:
+      production:
+        name: nw-prod-local
         storageClassName: cr8tor-publisher-default
+        accessModes:
+        - ReadWriteOnce
 
     
+ingress:
+  enabled: true
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect : "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect : "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: 64m
+  className: nginx
+  host: cr8tor.xlscsde.local
+  tls:
+    secretName: cr8tor.xlscsde.local-tls

@@ -34,9 +34,9 @@ export CURRENT_DATE=$(date '+%Y%m%d%H%M%S')
 WORK_FOLDER="/usr/lib/cr8tor-publisher-krapctl/work/${CURRENT_DATE}"
 CURRENT_FOLDER=$(pwd)
 
-#krapctl setup trustmanager
-#krapctl setup nginx
-#krapctl setup keycloak
+krapctl setup k3d
+krapctl setup trustmanager
+krapctl setup nginx
 
 export REGISTRY_NAME
 export REGISTRY_PORT
@@ -77,6 +77,10 @@ fi
 kubectl kustomize "${KUSTOMIZE_PATH}/devcontainer" | envsubst > ./devcontainer.yaml
 kubectl apply -f ./devcontainer.yaml
 
+krapctl_create_certificate cr8tor cr8tor.xlscsde.local cr8tor.xlscsde.local-tls "${NAMESPACE}"
+
 krapctl_helm_upgrade "${NAMESPACE}" cr8tor-publisher "${HELM_CHART}" "${KUSTOMIZE_PATH}/config.yaml"
+
+krapctl setup coredns rewrite -s cr8tor.xlscsde.local
 
 cd "${CURRENT_FOLDER}"

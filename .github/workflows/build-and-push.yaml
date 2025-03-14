@@ -21,7 +21,7 @@ permissions:
   contents: write
   packages: write
 
-  
+
 jobs:
   semver:
     uses: lsc-sde/lsc-sde/.github/workflows/semver.yaml@main
@@ -65,12 +65,35 @@ jobs:
     uses: lsc-sde/lsc-sde/.github/workflows/helm-package.yaml@main
     needs: 
     - semver
+    - approval_service
+    - metadata_service
+    - publish_service
     with:
       symver: ${{ needs.semver.outputs.GitVersion_SemVer }}
       directory: products/sde/data-ingestion/cr8tor-publisher
       subdirectory: "/helm"
       switchMain: false
     secrets: inherit
+
+  publish:
+    runs-on: ubuntu-latest
+    needs:
+      - helm_package
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+    - uses: actions/checkout@v3      
+
+    - name: "Publish Features"
+      uses: devcontainers/action@v1
+      with:
+        publish-features: "true"
+        base-path-to-features: "./devcontainer/features/"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   # update-helm-yaml:
   #   uses: lsc-sde/lsc-sde/.github/workflows/update-yaml.yaml@main

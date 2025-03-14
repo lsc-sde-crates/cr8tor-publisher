@@ -1,7 +1,7 @@
 {
     "id": "cr8tor-publisher-krapctl",
     "version": "0.1.0",
-    "name": "awms", 
+    "name": "cr8tor-publisher-krapctl", 
     "documentationURL": "https://lsc-sde.github.io/lsc-sde/imported/products/sde/data-ingestion/cr8tor-publisher/devcontainer/features/cr8tor-publisher-krapctl/docs/feature.html",
     "description": "Installs the CR8TOR publisher into the devcontainer's k3s cluster",
     "options": {
