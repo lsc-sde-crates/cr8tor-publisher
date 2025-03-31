@@ -4,15 +4,16 @@ metadata:
   name: cr8tor-lsc-staging
 provisioner: file.csi.azure.com
 parameters:
-  skuName: Standard_ZRS
-  location: ${azure_location}
-  storageAccount: ${azure_storage_account}
-  secretNamespace: ${cr8tor_publisher_namespace}
-  server: ${azure_storage_account}.privatelink.file.core.windows.net
-  resourceGroup: ${azure_resource_group}
+  skuName: Standard_LRS
+  location: uksouth
   storeAccountKey: "true"
-  shareName: cr8tor-lsc-staging
-  secretName: cr8tor-lsc-staging-int
+  storageAccount: stalscuksdatadevcr8lsc
+  server: stalscuksdatadevcr8lsc.privatelink.file.core.windows.net
+  resourceGroup: rg-lsc-uks-datadev-cr8tor
+  subscriptionId: e57c997a-42cb-4ad2-ac6f-4a336a2dd35b
+  shareName: staging
+  secretName: cr8tor-lsc-staging
+  secretNamespace: cr8tor-publisher
 allowVolumeExpansion: true
 reclaimPolicy: Retain
 volumeBindingMode: Immediate
@@ -32,15 +33,16 @@ metadata:
   name: cr8tor-lsc-prod
 provisioner: file.csi.azure.com
 parameters:
-  skuName: Standard_ZRS
-  location: ${azure_location}
-  storageAccount: ${azure_storage_account}
-  secretNamespace: ${cr8tor_publisher_namespace}
-  server: ${azure_storage_account}.privatelink.file.core.windows.net
-  resourceGroup: ${azure_resource_group}
+  skuName: Standard_LRS
+  location: uksouth
   storeAccountKey: "true"
-  shareName: cr8tor-lsc-prod
-  secretName: cr8tor-lsc-prod-int
+  storageAccount: stalscuksdatadevcr8lsc
+  server: stalscuksdatadevcr8lsc.privatelink.file.core.windows.net
+  resourceGroup: rg-lsc-uks-datadev-cr8tor
+  subscriptionId: e57c997a-42cb-4ad2-ac6f-4a336a2dd35b
+  shareName: production
+  secretName: cr8tor-lsc-prod
+  secretNamespace: cr8tor-publisher
 allowVolumeExpansion: true
 reclaimPolicy: Retain
 volumeBindingMode: Immediate
@@ -61,15 +63,16 @@ metadata:
   name: cr8tor-nw-staging
 provisioner: file.csi.azure.com
 parameters:
-  skuName: Standard_ZRS
-  location: ${azure_location}
-  storageAccount: ${azure_storage_account}
-  secretNamespace: ${cr8tor_publisher_namespace}
-  server: ${azure_storage_account}.privatelink.file.core.windows.net
-  resourceGroup: ${azure_resource_group}
+  skuName: Standard_LRS
+  location: uksouth
   storeAccountKey: "true"
-  shareName: cr8tor-nw-staging
-  secretName: cr8tor-nw-staging-int
+  storageAccount: stalscuksdatadevcr8nw
+  server: stalscuksdatadevcr8nw.privatelink.file.core.windows.net
+  resourceGroup: rg-lsc-uks-datadev-cr8tor
+  subscriptionId: e57c997a-42cb-4ad2-ac6f-4a336a2dd35b
+  shareName: staging
+  secretName: cr8tor-nw-staging
+  secretNamespace: cr8tor-publisher
 allowVolumeExpansion: true
 reclaimPolicy: Retain
 volumeBindingMode: Immediate
@@ -84,21 +87,23 @@ mountOptions:
   - nosharesock # reduce probability of reconnect race
 ---
 
+
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
   name: cr8tor-nw-prod
 provisioner: file.csi.azure.com
 parameters:
-  skuName: Standard_ZRS
-  location: ${azure_location}
-  storageAccount: ${azure_storage_account}
-  secretNamespace: ${cr8tor_publisher_namespace}
-  server: ${azure_storage_account}.privatelink.file.core.windows.net
-  resourceGroup: ${azure_resource_group}
+  skuName: Standard_LRS
+  location: uksouth  
   storeAccountKey: "true"
-  shareName: cr8tor-nw-prod
-  secretName: cr8tor-nw-prod-int
+  storageAccount: stalscuksdatadevcr8nw
+  server: stalscuksdatadevcr8nw.privatelink.file.core.windows.net
+  resourceGroup: rg-lsc-uks-datadev-cr8tor
+  subscriptionId: e57c997a-42cb-4ad2-ac6f-4a336a2dd35b
+  shareName: production
+  secretName: cr8tor-nw-prod
+  secretNamespace: cr8tor-publisher
 allowVolumeExpansion: true
 reclaimPolicy: Retain
 volumeBindingMode: Immediate
@@ -112,3 +117,118 @@ mountOptions:
   - actimeo=30 # reduce latency for metadata-heavy workload
   - nosharesock # reduce probability of reconnect race
 ---
+
+# apiVersion: storage.k8s.io/v1
+# kind: StorageClass
+# metadata:
+#   name: cr8tor-lsc-staging
+# provisioner: file.csi.azure.com
+# parameters:
+#   skuName: Standard_ZRS
+#   location: ${azure_location}
+#   storageAccount: ${azure_storage_account}
+#   secretNamespace: ${cr8tor_publisher_namespace}
+#   server: ${azure_storage_account}.privatelink.file.core.windows.net
+#   resourceGroup: ${azure_resource_group}
+#   storeAccountKey: "true"
+#   shareName: cr8tor-lsc-staging
+#   secretName: cr8tor-lsc-staging-int
+# allowVolumeExpansion: true
+# reclaimPolicy: Retain
+# volumeBindingMode: Immediate
+# mountOptions:
+#   - dir_mode=0777
+#   - file_mode=0777
+#   - uid=999
+#   - gid=999
+#   - mfsymlinks # Enable support for Minshall+French symlinks 
+#   - cache=strict # https://linux.die.net/man/8/mount.cifs
+#   - actimeo=30 # reduce latency for metadata-heavy workload
+#   - nosharesock # reduce probability of reconnect race
+# ---
+# apiVersion: storage.k8s.io/v1
+# kind: StorageClass
+# metadata:
+#   name: cr8tor-lsc-prod
+# provisioner: file.csi.azure.com
+# parameters:
+#   skuName: Standard_ZRS
+#   location: ${azure_location}
+#   storageAccount: ${azure_storage_account}
+#   secretNamespace: ${cr8tor_publisher_namespace}
+#   server: ${azure_storage_account}.privatelink.file.core.windows.net
+#   resourceGroup: ${azure_resource_group}
+#   storeAccountKey: "true"
+#   shareName: cr8tor-lsc-prod
+#   secretName: cr8tor-lsc-prod-int
+# allowVolumeExpansion: true
+# reclaimPolicy: Retain
+# volumeBindingMode: Immediate
+# mountOptions:
+#   - dir_mode=0777
+#   - file_mode=0777
+#   - uid=999
+#   - gid=999
+#   - mfsymlinks # Enable support for Minshall+French symlinks 
+#   - cache=strict # https://linux.die.net/man/8/mount.cifs
+#   - actimeo=30 # reduce latency for metadata-heavy workload
+#   - nosharesock # reduce probability of reconnect race
+# ---
+
+# apiVersion: storage.k8s.io/v1
+# kind: StorageClass
+# metadata:
+#   name: cr8tor-nw-staging
+# provisioner: file.csi.azure.com
+# parameters:
+#   skuName: Standard_ZRS
+#   location: ${azure_location}
+#   storageAccount: ${azure_storage_account}
+#   secretNamespace: ${cr8tor_publisher_namespace}
+#   server: ${azure_storage_account}.privatelink.file.core.windows.net
+#   resourceGroup: ${azure_resource_group}
+#   storeAccountKey: "true"
+#   shareName: cr8tor-nw-staging
+#   secretName: cr8tor-nw-staging-int
+# allowVolumeExpansion: true
+# reclaimPolicy: Retain
+# volumeBindingMode: Immediate
+# mountOptions:
+#   - dir_mode=0777
+#   - file_mode=0777
+#   - uid=999
+#   - gid=999
+#   - mfsymlinks # Enable support for Minshall+French symlinks 
+#   - cache=strict # https://linux.die.net/man/8/mount.cifs
+#   - actimeo=30 # reduce latency for metadata-heavy workload
+#   - nosharesock # reduce probability of reconnect race
+# ---
+
+# apiVersion: storage.k8s.io/v1
+# kind: StorageClass
+# metadata:
+#   name: cr8tor-nw-prod
+# provisioner: file.csi.azure.com
+# parameters:
+#   skuName: Standard_ZRS
+#   location: ${azure_location}
+#   storageAccount: ${azure_storage_account}
+#   secretNamespace: ${cr8tor_publisher_namespace}
+#   server: ${azure_storage_account}.privatelink.file.core.windows.net
+#   resourceGroup: ${azure_resource_group}
+#   storeAccountKey: "true"
+#   shareName: cr8tor-nw-prod
+#   secretName: cr8tor-nw-prod-int
+# allowVolumeExpansion: true
+# reclaimPolicy: Retain
+# volumeBindingMode: Immediate
+# mountOptions:
+#   - dir_mode=0777
+#   - file_mode=0777
+#   - uid=999
+#   - gid=999
+#   - mfsymlinks # Enable support for Minshall+French symlinks 
+#   - cache=strict # https://linux.die.net/man/8/mount.cifs
+#   - actimeo=30 # reduce latency for metadata-heavy workload
+#   - nosharesock # reduce probability of reconnect race
+# ---
