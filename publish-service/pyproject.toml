@@ -23,7 +23,7 @@ dev = [
 ]
 
 [tool.uv.sources]
-cr8tor = { git = "https://github.com/lsc-sde-crates/cr8tor.git", branch = "develop" }
+cr8tor = { git = "https://github.com/lsc-sde-crates/cr8tor.git", branch = "main" }
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
