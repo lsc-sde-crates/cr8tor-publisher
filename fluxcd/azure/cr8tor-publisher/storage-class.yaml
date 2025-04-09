@@ -7,10 +7,10 @@ parameters:
   skuName: Standard_LRS
   location: uksouth
   storeAccountKey: "true"
-  storageAccount: stalscuksdatadevcr8lsc
-  server: stalscuksdatadevcr8lsc.privatelink.file.core.windows.net
-  resourceGroup: rg-lsc-uks-datadev-cr8tor
-  subscriptionId: e57c997a-42cb-4ad2-ac6f-4a336a2dd35b
+  storageAccount: ${cr8tor_publish_service_storage_account_lsc}
+  server: ${cr8tor_publish_service_storage_account_lsc}.privatelink.file.core.windows.net # Specified in lscsde-flux config
+  resourceGroup: ${cr8tor_publish_service_storage_account_rg}
+  subscriptionId: ${cr8tor_publish_service_storage_account_sub_id}
   shareName: staging
   secretName: cr8tor-lsc-staging
   secretNamespace: cr8tor-publisher
@@ -36,10 +36,10 @@ parameters:
   skuName: Standard_LRS
   location: uksouth
   storeAccountKey: "true"
-  storageAccount: stalscuksdatadevcr8lsc
-  server: stalscuksdatadevcr8lsc.privatelink.file.core.windows.net
-  resourceGroup: rg-lsc-uks-datadev-cr8tor
-  subscriptionId: e57c997a-42cb-4ad2-ac6f-4a336a2dd35b
+  storageAccount: ${cr8tor_publish_service_storage_account_lsc}
+  server: ${cr8tor_publish_service_storage_account_lsc}.privatelink.file.core.windows.net # Specified in lscsde-flux config
+  resourceGroup: ${cr8tor_publish_service_storage_account_rg}
+  subscriptionId: ${cr8tor_publish_service_storage_account_sub_id}
   shareName: production
   secretName: cr8tor-lsc-prod
   secretNamespace: cr8tor-publisher
@@ -66,10 +66,10 @@ parameters:
   skuName: Standard_LRS
   location: uksouth
   storeAccountKey: "true"
-  storageAccount: stalscuksdatadevcr8nw
-  server: stalscuksdatadevcr8nw.privatelink.file.core.windows.net
-  resourceGroup: rg-lsc-uks-datadev-cr8tor
-  subscriptionId: e57c997a-42cb-4ad2-ac6f-4a336a2dd35b
+  storageAccount: ${cr8tor_publish_service_storage_account_nw}
+  server: ${cr8tor_publish_service_storage_account_nw}.privatelink.file.core.windows.net # Specified in lscsde-flux config
+  resourceGroup: ${cr8tor_publish_service_storage_account_rg}
+  subscriptionId: ${cr8tor_publish_service_storage_account_sub_id}
   shareName: staging
   secretName: cr8tor-nw-staging
   secretNamespace: cr8tor-publisher
@@ -97,10 +97,10 @@ parameters:
   skuName: Standard_LRS
   location: uksouth  
   storeAccountKey: "true"
-  storageAccount: stalscuksdatadevcr8nw
-  server: stalscuksdatadevcr8nw.privatelink.file.core.windows.net
-  resourceGroup: rg-lsc-uks-datadev-cr8tor
-  subscriptionId: e57c997a-42cb-4ad2-ac6f-4a336a2dd35b
+  storageAccount: ${cr8tor_publish_service_storage_account_nw}
+  server: ${cr8tor_publish_service_storage_account_nw}.privatelink.file.core.windows.net # Specified in lscsde-flux config
+  resourceGroup: ${cr8tor_publish_service_storage_account_rg}
+  subscriptionId: ${cr8tor_publish_service_storage_account_sub_id}
   shareName: production
   secretName: cr8tor-nw-prod
   secretNamespace: cr8tor-publisher
