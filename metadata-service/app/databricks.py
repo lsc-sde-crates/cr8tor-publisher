@@ -151,8 +151,8 @@ def get_metadata_restapi(
                     datatype=column.get("type_name", ""),
                 )
                 for column in columns
-                if column.get("name", "") in requested_columns[table_name]
-                or not requested_columns[table_name]
+                if column.get("name", "") in requested_columns.get(table_name, [])
+                or not requested_columns.get(table_name, [])
             ]
 
             # Add the table metadata
