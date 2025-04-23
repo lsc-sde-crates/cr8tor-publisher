@@ -10,22 +10,17 @@ import sys
 from pathlib import Path
 
 import dlt
+import sqlalchemy.types as sqltypes
 from dlt.sources.sql_database import sql_database
 from sqlalchemy import Column, MetaData, Table, create_engine
-from sqlalchemy.types import (
-    BIGINT,
-    BINARY,
-    BOOLEAN,
-    DATE,
-    DATETIME,
-    DECIMAL,
-    FLOAT,
-    INTEGER,
-    TIMESTAMP,
-    String,
-)
 
 from . import config, databricks, schema, utils
+
+DLTHUB_DATATYPE_DATABRICKS_MAPPING = {
+    # current Databricks SQLDatatypes: https://learn.microsoft.com/en-gb/azure/databricks/sql/language-manual/sql-ref-datatypes
+    "TINYINT": sqltypes.INTEGER,
+    "LONG": sqltypes.BIGINT,
+}
 
 
 class DLTDataRetriever:
@@ -231,23 +226,20 @@ class DLTDataRetriever:
                     column_type = columns_dict[column_name].get("type_text").upper()
                     match = re.match(r"DECIMAL(?:\((\d+),(\d+)\))?", column_type)
                     precision, scale = match.groups() if match else (None, None)
-                    return DECIMAL(int(precision), int(scale))
+                    return sqltypes.DECIMAL(int(precision), int(scale))
                 # If columns_dict and column_name are not provided, just return DECIMAL without precision
-                return DECIMAL
+                return sqltypes.DECIMAL
 
-            mapping = {
-                "BIGINT": BIGINT,
-                "BINARY": BINARY,
-                "BOOLEAN": BOOLEAN,
-                "DATE": DATE,
-                "DATETIME": DATETIME,
-                "DECIMAL": DECIMAL,
-                "FLOAT": FLOAT,
-                "INTEGER": INTEGER,
-                "LONG": BIGINT,
-                "TIMESTAMP": TIMESTAMP,
-            }
-            return mapping.get(datatype, String)
+            # Try getting from SQLAlchemy types first
+            sqlalchemy_type = getattr(sqltypes, datatype.upper(), None)
+            if sqlalchemy_type:
+                return sqlalchemy_type
+
+            # Fallback to custom mapping
+            return DLTHUB_DATATYPE_DATABRICKS_MAPPING.get(
+                datatype.upper(),
+                sqltypes.String,
+            )
         msg = "Unsupported source type for datatype mapping."
         raise ValueError(msg)
 
@@ -367,7 +359,19 @@ class DLTDataRetriever:
                 "data_retrieved": [{"file_path": str(file)} for file in files],
             }
         except Exception as e:
-            msg = f"Failed to run DLT pipeline: {e}"
+            error_message = str(e)
+
+            # Check for specific patterns in the message
+            if (
+                "at stage extract" in error_message
+                and "Expected bytes, got" in error_message
+            ):
+                msg = "Failed to run DLT pipeline: DLTHUB_DATATYPE_*_MAPPING is invalid. Please update the code and expected mapping. Missing data type: "
+                match = re.search(r"got a '(\w+)' object", error_message)
+                if match:
+                    msg = msg + match.group(1)
+            else:
+                msg = f"Failed to run DLT pipeline: {e}"
             raise RuntimeError(msg) from e
         finally:
             # Clean up and drop pipeline state
