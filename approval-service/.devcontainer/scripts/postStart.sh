@@ -1,0 +1,1 @@
+uv sync --allow-insecure-host github.com

@@ -149,8 +149,13 @@ Executing commands on running container:
     podman exec publish-container ls outputs/nw-sde/staging/Pr005/20250205_010101/data/outputs/p_abx -l -h
 
 #### Podman volume mounting
+    Mounting local folder to containerFilesystem:
+    podman run --name <new_container> -v <local_folder_relative_path>:/<container_path> docker_image args
     podman run --name temp_container -v secrets:/secrets alpine sleep 10
+    podman run --name temp_container alpine sleep 10
+
 
     podman machine ssh "podman cp /mnt/c/Users/<user.folder>/<path_to_secrets_folder>/secrets/     temp_container:/secrets"
+    podman machine ssh "podman cp /mnt/c/Users/Piotr.Mucha/Desktop/Microapps/secrets     temp_container:/secrets"
 
     podman rm -f temp_container

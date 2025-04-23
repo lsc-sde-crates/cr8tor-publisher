@@ -25,8 +25,8 @@
         "--name","publish-container-dev"
 	],
     "forwardPorts": [8003],
-    "postStartCommand": "uv sync",
 	"postCreateCommand": "bash ./.devcontainer/scripts/postCreate.sh",
+	"postStartCommand": "bash ./.devcontainer/scripts/postStart.sh",
 	"containerEnv": {
 		"DISPLAY": "dummy",
 		"PYTHONUNBUFFERED": "True",
