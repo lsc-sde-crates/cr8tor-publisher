@@ -106,7 +106,10 @@ class DatasetMetadata(BaseModel):
     description: str | None = Field(None, description="Dataset description")
     catalog: str | None = Field(None, description="Catalog name in Unity Catalog")
     schema_name: str = Field(description="Schema name in Unity Catalog")
-    tables: list[TableMetadata] | None = Field(description="Target table names")
+    tables: list[TableMetadata] | None = Field(
+        default=None,
+        description="Target table names",
+    )
 
 
 ###############################################################################
