@@ -8,31 +8,24 @@ on:
       - main
 
 jobs:
-  test:
+  test-services:
     runs-on: ubuntu-latest
+    name: Test ${{ matrix.service }}
+    strategy:
+      matrix:
+        service: [publish-service, metadata-service, approval-service]
+      fail-fast: false
     steps:
-      - name: Dump GitHub context
-        env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
-        run: echo "$GITHUB_CONTEXT"
-
       - uses: actions/checkout@v4
-
-      - run: cd publish-service
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
       - name: Setup uv
         uses: astral-sh/setup-uv@v6
         with:
           version: "0.5.16"
-          enable-cache: true
-          cache-dependency-glob: |
-            requirements**.txt
-            pyproject.toml
-
-      - name: Test
-        run: uv run pytest
+      - name: Test Service
+        working-directory: ${{ matrix.service }}
+        run: |
+          uv run pytest
