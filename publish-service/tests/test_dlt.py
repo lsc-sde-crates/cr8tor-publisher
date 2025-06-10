@@ -134,7 +134,7 @@ class TestDLTDataRetriever:
 
         with pytest.raises(
             RuntimeError,
-            match="Faileddd to create SQLAlchemy engine: Engine creation failed",
+            match="Failed to create SQLAlchemy engine: Engine creation failed",
         ):
             self.retriever._create_sqlalchemy_engine()  # noqa: SLF001
 
