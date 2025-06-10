@@ -14,6 +14,7 @@ jobs:
     strategy:
       matrix:
         service: [publish-service, metadata-service, approval-service]
+      fail-fast: false
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
