@@ -31,7 +31,7 @@ jobs:
           version: "0.5.16"
 
       - name: Test
+        working-directory: publish-service
         run: |
                 ls
-                uv sync
                 uv run pytest
