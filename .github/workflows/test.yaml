@@ -29,10 +29,9 @@ jobs:
         uses: astral-sh/setup-uv@v6
         with:
           version: "0.5.16"
-          enable-cache: true
-          cache-dependency-glob: |
-            requirements**.txt
-            pyproject.toml
 
       - name: Test
-        run: uv run pytest
+        run: |
+                ls
+                uv sync
+                uv run pytest
