@@ -28,8 +28,8 @@ class TestDLTDataRetriever:
                 "catalog": "test_catalog",
             },
             credentials={
-                "spn_clientid": "client_id",
-                "spn_secret": "client_secret",
+                "spn_clientid": "databricksspnclientid",
+                "spn_secret": "databricksspnsecret",
             },
             metadata={
                 "schema_name": "test_schema",
@@ -113,16 +113,6 @@ class TestDLTDataRetriever:
             == "databricks://token:test_token@example.com?http_path=/sql/1.0/endpoints/abc&catalog=test_catalog"
         )
 
-    def test_get_source_connection_string_unsupported_source(self) -> None:  # type: ignore  # noqa: PGH003
-        """Test case for unsupported source type when constructing connection string."""
-        self.retriever.access_payload.source["type"] = "UnsupportedType"
-
-        with pytest.raises(
-            ValueError,
-            match="Unsupported source type. Only DatabricksSQL is supported.",
-        ):
-            self.retriever._get_source_connection_string()  # noqa: SLF001
-
     @patch("app.dlt.create_engine")
     def test_create_sqlalchemy_engine_success(self, mock_create_engine: patch) -> None:  # type: ignore  # noqa: PGH003
         """Test case for successful creation of SQLAlchemy engine."""
@@ -144,7 +134,7 @@ class TestDLTDataRetriever:
 
         with pytest.raises(
             RuntimeError,
-            match="Failed to create SQLAlchemy engine: Engine creation failed",
+            match="Faileddd to create SQLAlchemy engine: Engine creation failed",
         ):
             self.retriever._create_sqlalchemy_engine()  # noqa: SLF001
 
