@@ -48,7 +48,19 @@ async def project_validate(
     log.info("Calling Metadata Service endpoint for the requested project...")
     log.info("Project: %s", payload["project_name"])
     log.info("Project start time: %s", payload["project_start_time"])
-    log.info("Project destination: %s", payload["destination_type"])
+    log.info("Project source type: %s", payload.get("source", {}).get("type", None))
+    log.info(
+        "Project destination name: %s",
+        payload.get("destination", {}).get("name", None),
+    )
+    log.info(
+        "Project destination type: %s",
+        payload.get("destination", {}).get("type", None),
+    )
+    log.info(
+        "Project destination format: %s",
+        payload.get("destination", {}).get("format", None),
+    )
 
     res = await call_subservice(payload, "publish", "data-publish/validate", log)
     res = await call_subservice(payload, "metadata", "metadata/project", log)
@@ -79,7 +91,19 @@ async def project_package(
     log.info("Calling Publish Service - Package endpoint for the requested project...")
     log.info("Project: %s", payload["project_name"])
     log.info("Project start time: %s", payload["project_start_time"])
-    log.info("Project destination: %s", payload["destination_type"])
+    log.info("Project source type: %s", payload.get("source", {}).get("type", None))
+    log.info(
+        "Project destination name: %s",
+        payload.get("destination", {}).get("name", None),
+    )
+    log.info(
+        "Project destination type: %s",
+        payload.get("destination", {}).get("type", None),
+    )
+    log.info(
+        "Project destination format: %s",
+        payload.get("destination", {}).get("format", None),
+    )
 
     res = await call_subservice(payload, "publish", "data-publish/package", log)
 
@@ -109,7 +133,19 @@ async def project_publish(
     log.info("Calling Publish Service - Publish endpoint for the requested project...")
     log.info("Project: %s", payload["project_name"])
     log.info("Project start time: %s", payload["project_start_time"])
-    log.info("Project destination: %s", payload["destination_type"])
+    log.info("Project source type: %s", payload.get("source", {}).get("type", None))
+    log.info(
+        "Project destination name: %s",
+        payload.get("destination", {}).get("name", None),
+    )
+    log.info(
+        "Project destination type: %s",
+        payload.get("destination", {}).get("type", None),
+    )
+    log.info(
+        "Project destination format: %s",
+        payload.get("destination", {}).get("format", None),
+    )
 
     res = await call_subservice(payload, "publish", "data-publish/publish", log)
 
