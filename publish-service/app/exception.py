@@ -17,13 +17,43 @@ async def validation_exception_handler(
     exc: RequestValidationError,
 ) -> JSONResponse:
     """Handles validation errors and returns a custom JSON response."""
-    detail_msg = "Invalid input provided. Mising required keys or invalid values in the body payload."
+    errors = exc.errors()
+    formatted_errors = []
 
-    log.exception("Validation error: %s %s", detail_msg, exc.errors())
+    for idx, error in enumerate(errors, start=1):
+        # Extract location and message
+        loc_array = error.get("loc", [])
+        error_type = error.get("type")
+        msg = error.get("msg", "Invalid input")
+        msg = msg.replace("Unable to extract tag using discriminator", "Missing key")
+
+        # Apply custom logic for 'loc' formatting
+        if len(loc_array) == 1 and loc_array[0] != "body" and error_type == "missing":
+            # Single value, not 'body', type is 'missing'
+            loc = str(loc_array[0])
+        elif (
+            len(loc_array) == 2
+            and loc_array[0] == "body"
+            and error_type in ("missing", "union_tag_not_found")
+        ):
+            # Two values, first is 'body', type is 'missing' - use only second value
+            loc = str(loc_array[1])
+        elif len(loc_array) == 4 and loc_array[0] == "body" and error_type == "missing":
+            # Four values, first is 'body', type is 'missing' - concatenate second and fourth
+            loc = f"{loc_array[1]} -> {loc_array[3]}"
+        else:
+            # Otherwise use current logic - join all values
+            loc = " -> ".join(str(loc) for loc in loc_array)
+
+        formatted_errors.append(f"Error {idx}: {msg}: '{loc}'")
+
+    detail_msg = "Validation Error: " + "; ".join(formatted_errors)
+
+    log.exception("%s %s", detail_msg, exc.errors())
 
     error_response = schema.ErrorResponse(
         status="error",
-        payload={"detail": detail_msg},
+        payload={"detail": log.name + ": " + detail_msg},
     )
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -37,7 +67,7 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> JSONRe
 
     error_response = schema.ErrorResponse(
         status="error",
-        payload={"detail": exc.detail},
+        payload={"detail": log.name + ": " + exc.detail},
     )
 
     return JSONResponse(
@@ -53,7 +83,7 @@ async def global_exception_handler(request: Request, exc: Exception) -> JSONResp
 
     error_response = schema.ErrorResponse(
         status="error",
-        payload={"detail": " ".join(map(str, exc.args))},
+        payload={"detail": log.name + ": " + " ".join(map(str, exc.args))},
     )
 
     return JSONResponse(
@@ -71,7 +101,9 @@ async def starlette_http_exception_handler(
 
     error_response = schema.ErrorResponse(
         status="error",
-        payload={"detail": f"Url: {request.url}. Error: {exc.detail}"},
+        payload={
+            "detail": log.name + ": " + f"Url: {request.url}. Error: {exc.detail}",
+        },
     )
 
     return JSONResponse(

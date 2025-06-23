@@ -91,7 +91,6 @@ def handle_restapi_request(
 def get_metadata_restapi(
     requested_dataset: schema.DatasetMetadata,
     source: schema.DatabricksSourceConnection,
-    credentials: schema.DatabricksSourceAccessCredential,
     log: config.logging.Logger,
 ) -> dict[str, Any]:
     """Retrieve metadata from the Databricks REST API."""
@@ -100,8 +99,8 @@ def get_metadata_restapi(
         log.info("Retrieving access token ...")
         access_token = get_access_token(
             str(source.host_url),
-            str(credentials.spn_clientid),
-            str(credentials.spn_secret),
+            str(source.credentials.spn_clientid),
+            str(source.credentials.spn_secret),
         )
         headers = {"Authorization": f"Bearer {access_token}"}
 

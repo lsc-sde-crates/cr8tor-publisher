@@ -58,6 +58,8 @@ we can use below commands. For podman, replace `docker` with `podman`.
 
 If we want to build locally the docker images and containers, without DevContainer, we can use below commands. For podman, replace `docker` with `podman`.
 
+Important: **Enviornment variables are defined in .env**
+
     docker build -t approval-service .
     docker run -d --name approval-container --network=microapps-network -p 8000:8000 localhost/approval-container
 
@@ -69,11 +71,14 @@ If we want to build locally the docker images and containers, without DevContain
 
 If we mounted secrets to Docker Volume, we can specify the volume path when running container:
 
-    docker run -d -v secrets:/mnt/ -e SECRETS_MNT_PATH="/mnt/secrets/" --name approval-container --network=microapps-network -p 8000:8000 approval-service
+    docker run -d -v secrets:/mnt/ --name approval-container --network=microapps-network -p 8000:8000 --env-file .env approval-service
 
-    docker run -d -v secrets:/mnt/ -e SECRETS_MNT_PATH="/mnt/secrets/" --name metadata-container --network=microapps-network -p 8002:8002 metadata-service
+    docker run -d -v secrets:/mnt/ --name metadata-container --network=microapps-network -p 8002:8002 --env-file .env metadata-service
 
-    docker run -d -v secrets:/mnt/ -e SECRETS_MNT_PATH="/mnt/secrets/" --name publish-container --network=microapps-network -p 8003:8003 publish-service
+    docker run -d -v secrets:/mnt/ --name publish-container --network=microapps-network -p 8003:8003 --env-file .env publish-service
+
+    if we have volumes for destinations:
+    docker run -d -v secrets:/mnt/ --name publish-container --network=microapps-network -p 8003:8003 -v lscdestination:/mnt/lscdestination -v nwdestination:/mnt/nwdestination --env-file .env publish-service
 
 Helpful Docker commands:
 
@@ -130,11 +135,11 @@ Resolving known issues with Podman or WSL:
     podman build -t metadata-service .
     podman build -t publish-service .
 
-    podman run -d -v secrets:/mnt/secrets/ -e SECRETS_MNT_PATH="/mnt/secrets/" --name publish-container --network=microapps-network -p 8003:8003 publish-service
+    podman run -d -v secrets:/mnt/secrets/ --env-file .env --name publish-container --network=microapps-network -p 8003:8003 publish-service
 
-    podman run -d -v secrets:/mnt/secrets/ -e SECRETS_MNT_PATH="/mnt/secrets/" --name approval-container --network=microapps-network -p 8000:8000 approval-service
+    podman run -d -v secrets:/mnt/secrets/ --env-file .env --name approval-container --network=microapps-network -p 8000:8000 approval-service
     
-    podman run -d -v secrets:/mnt/secrets/ -e SECRETS_MNT_PATH="/mnt/secrets/" --name metadata-container --network=microapps-network -p 8002:8002 metadata-service
+    podman run -d -v secrets:/mnt/secrets/ --env-file .env --name metadata-container --network=microapps-network -p 8002:8002 metadata-service
 
 Executing commands on running container:
 

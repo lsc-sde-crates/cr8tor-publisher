@@ -415,3 +415,6 @@ secrets/
 
 # Environment variables file
 .env
+
+# Pytest
+.pytest_cache/
