@@ -1,7 +1,7 @@
 FROM python:3.12-slim
 
 # Install Git (required for fetching cr8tor from Git repositories)
-RUN apt-get update && apt-get install -y git
+RUN apt-get update && apt-get install -y git libpq-dev postgresql-client
 
 # Create a non-root user and group
 RUN groupadd -r appuser && useradd -r -g appuser appuser
@@ -14,17 +14,15 @@ RUN chown -R appuser:appuser /home/appuser
 
 # Target storage accounts where the output data will be stored are mounted at K8S pod level
 #  We need to set the environment variables to the mounted paths
-#  There are 2 storage accounts: one for LSC and one for NW
-#  Each storage account has 2 containers: one for staging and one for production output
-# The mounted paths are at storage account level
-ENV TARGET_STORAGE_ACCOUNT_LSC_SDE_MNT_PATH="./outputs/lsc-sde"
-ENV TARGET_STORAGE_ACCOUNT_NW_SDE_MNT_PATH="./outputs/nw-sde"
-RUN mkdir -p ${TARGET_STORAGE_ACCOUNT_LSC_SDE_MNT_PATH}/staging
-RUN mkdir -p ${TARGET_STORAGE_ACCOUNT_LSC_SDE_MNT_PATH}/production
-RUN chown -R appuser:appuser ${TARGET_STORAGE_ACCOUNT_LSC_SDE_MNT_PATH}
-RUN mkdir -p ${TARGET_STORAGE_ACCOUNT_NW_SDE_MNT_PATH}/staging
-RUN mkdir -p ${TARGET_STORAGE_ACCOUNT_NW_SDE_MNT_PATH}/production
-RUN chown -R appuser:appuser ${TARGET_STORAGE_ACCOUNT_NW_SDE_MNT_PATH}
+# Detect TARGET_STORAGE_ACCOUNT_%_SDE_MNT_PATH environment variables and create subfolders
+RUN for var in $(env | grep '^TARGET_STORAGE_ACCOUNT_.*_SDE_MNT_PATH=' | cut -d'=' -f1); do \
+        path=$(eval echo \$$var); \
+        if [ ! -z "$path" ]; then \
+            echo "Processing $var with path: $path"; \
+            mkdir -p "$path/staging" "$path/production"; \
+            chown -R appuser:appuser "$path/staging" "$path/production"; \
+        fi; \
+    done
 
 # Keyvault secrets are mounted at K8S pod level
 ENV SECRETS_MNT_PATH="./secrets"

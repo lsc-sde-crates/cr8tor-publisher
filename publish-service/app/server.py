@@ -7,7 +7,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from . import auth, config, dlt, exception, publish, schema
+from . import auth, config, core, exception, publish, schema
 
 app_config: dict[str, Any] = {"title": config.get_settings().app_name}
 
@@ -27,14 +27,14 @@ app.add_exception_handler(
 
 
 @app.post("/data-publish/validate", response_model=schema.SuccessResponse)
-async def datapublish_package(
-    access_payload: schema.ValidationContract,
+async def datapublish_validate(
+    payload: schema.ValidationContract,
     _: auth.AuthDependency,
 ) -> schema.SuccessResponse:
     """Publish Service Endpoint which validates source and destination existence.
 
     Args:
-        access_payload: Endpoint accepts json with project details and source and destination details
+        payload: Endpoint accepts json with project details and source and destination details
         _: Authentication dependency
 
     Returns:
@@ -42,14 +42,16 @@ async def datapublish_package(
         On Failure, returns the error message
 
     """
-    log = config.setup_logger(f"PublishService Project {access_payload.project_name}")
+    log = config.setup_logger(f"PublishService Project {payload.project_name}")
     log.info("Validating source and destination...")
-    log.info("Project: %s", access_payload.project_name)
-    log.info("Project start time: %s", access_payload.project_start_time)
-    log.info("Project destination type: %s", access_payload.destination_type)
-    log.info("Project destination format: %s", access_payload.destination_format)
+    log.info("Project: %s", payload.project_name)
+    log.info("Project start time: %s", payload.project_start_time)
+    log.info("Project source type: %s", payload.source.type)
+    log.info("Project destination name: %s", payload.destination.name)
+    log.info("Project destination type: %s", payload.destination.type)
+    log.info("Project destination format: %s", payload.destination.format)
 
-    res = await dlt.dlt_validate_source_destination(access_payload, log)
+    res = await core.dlt_validate_source_destination(payload, log)
     return schema.SuccessResponse(
         status="success",
         payload=res,
@@ -58,13 +60,13 @@ async def datapublish_package(
 
 @app.post("/data-publish/package", response_model=schema.SuccessResponse)
 async def datapublish_package(
-    access_payload: schema.DataPackageContract,
+    payload: schema.DataPackageContract,
     _: auth.AuthDependency,
 ) -> schema.SuccessResponse:
     """Publish Service Endpoint which retrieves the data from the source system.
 
     Args:
-        access_payload: Endpoint accepts json with project details along with requested datasets details (list of tables, columns, files, etc.)
+        payload: Endpoint accepts json with project details along with requested datasets details (list of tables, columns, files, etc.)
         _: Authentication dependency
 
     Returns:
@@ -72,14 +74,16 @@ async def datapublish_package(
         On Failure, returns the error message
 
     """
-    log = config.setup_logger(f"PublishService Project {access_payload.project_name}")
+    log = config.setup_logger(f"PublishService Project {payload.project_name}")
     log.info("Publishing data files from staging to production ...")
-    log.info("Project: %s", access_payload.project_name)
-    log.info("Project start time: %s", access_payload.project_start_time)
-    log.info("Project destination type: %s", access_payload.destination_type)
-    log.info("Project destination format: %s", access_payload.destination_format)
+    log.info("Project: %s", payload.project_name)
+    log.info("Project start time: %s", payload.project_start_time)
+    log.info("Project source type: %s", payload.source.type)
+    log.info("Project destination name: %s", payload.destination.name)
+    log.info("Project destination type: %s", payload.destination.type)
+    log.info("Project destination format: %s", payload.destination.format)
 
-    res = await dlt.dlt_data_retrieve(access_payload, log)
+    res = await core.dlt_data_retrieve(payload, log)
     return schema.SuccessResponse(
         status="success",
         payload=res,
@@ -88,13 +92,13 @@ async def datapublish_package(
 
 @app.post("/data-publish/publish", response_model=schema.SuccessResponse)
 async def datapublish_publish(
-    project_payload: schema.DataPublishContract,
+    payload: schema.DataPublishContract,
     _: auth.AuthDependency,
 ) -> schema.SuccessResponse:
     """Publish Service Endpoint which publishes the data to target storage account.
 
     Args:
-        project_payload: Endpoint accepts json with project details
+        payload: Endpoint accepts json with project details
         _: Authentication dependency
 
     Returns:
@@ -102,13 +106,15 @@ async def datapublish_publish(
         On Failure, returns the error message
 
     """
-    log = config.setup_logger(f"PublishService Project {project_payload.project_name}")
+    log = config.setup_logger(f"PublishService Project {payload.project_name}")
     log.info("Publishing data files from staging to production ...")
-    log.info("Project: %s", project_payload.project_name)
-    log.info("Project start time: %s", project_payload.project_start_time)
-    log.info("Project destination type: %s", project_payload.destination_type)
+    log.info("Project: %s", payload.project_name)
+    log.info("Project start time: %s", payload.project_start_time)
+    log.info("Project destination name: %s", payload.destination.name)
+    log.info("Project destination type: %s", payload.destination.type)
+    log.info("Project destination format: %s", payload.destination.format)
 
-    res = await publish.data_publish(project_payload, log)
+    res = await publish.data_publish(payload, log)
 
     return schema.SuccessResponse(
         status="success",

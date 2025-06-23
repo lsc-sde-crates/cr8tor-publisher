@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """Functions related to publishing stage of endpoint."""
 
-import shutil
 import os
+import shutil
 from pathlib import Path
 
 from bagit import generate_manifest_lines
 
-from . import config, schema, utils
+from . import config, core, opal, schema, utils
 
 
 async def data_publish(
@@ -23,8 +23,22 @@ async def data_publish(
         dict: A dictionary containing the checksums of the published data.
 
     """
-    log.info("Publishing data files from staging to production...")
+    if project_payload.destination.type == "filestore":
+        return await _publish_to_filestore(project_payload, log)
+    if project_payload.destination.type == "postgresql":
+        return await _publish_to_postgresql(project_payload, log)
+    msg = f"Unsupported destination type: {project_payload.destination.type}"
+    raise ValueError(
+        msg,
+    )
 
+
+async def _publish_to_filestore(
+    project_payload: schema.DataPublishContract,
+    log: config.logging.Logger,
+) -> dict:
+    """Publish data to filestore destination."""
+    log.info("Publishing data files from staging to production...")
     staging_target_path, production_target_path, storage_mount_path, _, _ = (
         utils.get_target_paths(
             project_payload,
@@ -123,3 +137,50 @@ def generate_checksums(path: Path) -> list:
         )
 
     return checksums
+
+
+async def _publish_to_postgresql(
+    project_payload: schema.DataPublishContract,
+    log: config.logging.Logger,
+) -> dict:
+    """Publish data to PostgreSQL destination."""
+    retriever = core.DLTDataRetriever(project_payload, log)
+    log.info("Retrieving available tables in destination PostgreSQL...")
+    tables_list = retriever.get_destination_tables_list()
+
+    # filter tables_list on schema if meets pattern project_name
+    tables_list = [
+        table
+        for table in tables_list
+        if table["schema"]
+        .lower()
+        .startswith(
+            project_payload.project_name.lower()
+            + "_"
+            + project_payload.project_start_time.lower(),
+        )
+        and not table["name"].lower().startswith("_dlt_")
+    ]
+
+    # Orchestrate Opal tasks
+    log.info("Initializing Opal instance...")
+    opal_client = opal.Opal(log)
+
+    try:
+        group_name = f"{project_payload.project_name}_group"
+        opal_client.create_project(project_payload.project_name)
+        opal_client.create_group(group_name)
+        opal_client.add_group_to_permissions(group_name)
+        opal_client.create_resources(
+            project_payload.project_name,
+            tables_list,
+            os.getenv("DESTINATION_POSTGRESQL_OPAL_READONLY_USERNAME"),
+            os.getenv("DESTINATION_POSTGRESQL_OPAL_READONLY_PASSWORD"),
+        )
+        opal_client.set_resources_permissions(project_payload.project_name, group_name)
+    except opal.HTTPError as e:
+        msg = f"Opal module failure: {e.error} - {e.message}"
+        log.exception("Opal module failure: %s", msg)
+        raise RuntimeError(msg) from e
+
+    return {"data_published": "PostgreSQL and OPAL publication completed"}

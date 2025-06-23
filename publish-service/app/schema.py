@@ -3,85 +3,155 @@
 
 from __future__ import annotations
 
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import (
+    BaseModel,
+    Field,
+    Tag,
+)
 
 ###############################################################################
-# Models to validate properties of body content in the request. #
+# Models to validate properties of body content in the request
 ###############################################################################
 
 
-class DataSourceConnection(BaseModel):
-    """Model for data source connection."""
-
-    name: str | None = None
-    type: str = Field(description="source type")
-
-
-class DatabricksSourceConnection(DataSourceConnection):
+class DatabricksSourceConnection(BaseModel):
     """Model for Databricks source connection."""
 
-    host_url: HttpUrl = Field(description="dbs workspace URL")
-    http_path: str = Field(description="http path to the db cluster")
-    port: int = Field(
-        default=443,
-        description="Port for the db cluster (defaults to 443)",
+    type: Literal["databrickssql"] = Field(description="Databricks SQL type")
+    host_url: str = Field(description="Databricks host URL")
+    http_path: str = Field(description="HTTP path for Databricks SQL warehouse")
+    port: int = Field(description="Port number", default=443)
+    catalog: str = Field(description="Databricks catalog name")
+    credentials: DatabricksSourceAccessCredential = Field(
+        description="Databricks access credentials",
     )
-    catalog: str = Field(description="Unity catalog name")
 
 
-class DatabricksSourceAccessCredential(BaseModel):
-    """Model for Databricks source access credentials."""
+class SQLSourceConnection(BaseModel):
+    """Model for SQL source connection."""
+
+    type: Literal["mysql", "postgresql", "sqlserver", "mssql"] = Field(
+        description="SQL database type",
+    )
+    host_url: str = Field(
+        description="Database host URL, e.g. mysql-rfam-public.ebi.ac.uk",
+    )
+    database: str = Field(description="Database name")
+    port: int = Field(description="Database port")
+    credentials: SQLSourceAccessCredential = Field(
+        description="SQL database access credentials",
+    )
+
+
+class SourceCredentials(BaseModel):
+    """Base model for source access credentials."""
 
     provider: str | None = Field(
         default=None,
         description="Service providing the secrets e.g. KeyVault",
     )
+    username_key: str = Field(
+        description="Key name in secrets provider for username/client ID",
+    )
+    password_key: str = Field(
+        description="Key name in secrets provider for password/secret",
+    )
+
+
+class DatabricksSourceAccessCredential(SourceCredentials):
+    """Model for Databricks source access credentials."""
+
     spn_clientid: str = Field(
-        description="Key name in secrets provider to access spn clientid ",
+        description="Key name in secrets provider to access spn clientid",
     )
     spn_secret: str = Field(
         description="Key name in secrets provider to access spn secret",
     )
 
+    # Override the base fields to use Databricks-specific naming
+    username_key: str = Field(default="", description="Not used for Databricks")
+    password_key: str = Field(default="", description="Not used for Databricks")
+
+
+class SQLSourceAccessCredential(SourceCredentials):
+    """Model for SQL source access credentials - inherits default behavior."""
+
+
+SourceConnection = Annotated[
+    Annotated[SQLSourceConnection, Tag("postgresql")]
+    | Annotated[DatabricksSourceConnection, Tag("databrickssql")],
+    Field(discriminator="type"),
+]
+
+
+class BaseDestination(BaseModel):
+    name: str = Field(default="", description="Destination name")
+    format: str = Field(default="", description="Output format")
+
+
+class FilestoreDestination(BaseDestination):
+    type: Literal["filestore"] = Field(description="Filestore destination")
+    name: str = Field(
+        description="Name of the filestore destination. Must match the mount point name.",
+    )
+    format: Literal["csv", "duckdb"] = Field(description="Output file format")
+
+
+class PostgreSQLDestination(BaseDestination):
+    type: Literal["postgresql"] = Field(description="PostgreSQL database destination")
+    format: Literal["sql"] = Field(description="Output file format", default="sql")
+
+
+Destination = Annotated[
+    Annotated[FilestoreDestination, Tag("filestore")]
+    | Annotated[PostgreSQLDestination, Tag("postgresql")],
+    Field(discriminator="type"),
+]
+
 
 class DataPublishContract(BaseModel):
     """Model required for all publish endpoints."""
 
-    project_name: str = (
-        Field(description="Project name (without whitespaces)", pattern=r"^\S+$"),
+    project_name: str = Field(
+        description="Project name (without whitespaces)",
+        pattern=r"^\S+$",
     )
-    project_start_time: str = (
-        Field(
-            description="Start time of the LSC project action. Format: YYYYMMDD_HHMMSS",
-            pattern=r"^\d{8}_\d{6}$",
-        ),
+    project_start_time: str = Field(
+        description="Start time of the project action. Format: YYYYMMDD_HHMMSS",
+        pattern=r"^\d{8}_\d{6}$",
     )
-    destination_type: str = Field(
-        description="Target SDE storage account where data should be loaded",
-        enum=["LSC", "NW"],
+    destination: Destination = Field(description="Target destination configuration")
+
+
+class ExtractConfig(BaseModel):
+    """Model for DLTHub data extraction configuration."""
+
+    backend_engine: str = Field(
+        description="DLTHub backend engine to use for data extraction",
+        enum=["pyarrow", "sqlalchemy", "pandas"],
+        default="pyarrow",
     )
 
 
 class ValidationContract(DataPublishContract):
     """Model for validating source and destination."""
 
-    destination_format: str = Field(
-        description="Target format for the data to be loaded",
-        enum=["CSV", "DUCKDB"],
+    extract_config: ExtractConfig | None = Field(
+        default_factory=ExtractConfig,
+        description="Optional configuration for the data extraction engine dltHub",
     )
-    source: dict = Field(
-        description="db connection details definition",
-    )
-    credentials: dict = Field(
-        description="Auth provider and secrets key",
-    )
+    source: SourceConnection = Field(description="Source connection configuration")
 
 
 class DataPackageContract(ValidationContract):
     """Model for data access contract."""
 
+    extract_config: ExtractConfig | None = Field(
+        default_factory=ExtractConfig,
+        description="Optional configuration for the data extraction engine dltHub",
+    )
     metadata: DatasetMetadata = Field(
         description="Metadata for the requested tables",
     )
@@ -103,7 +173,7 @@ class TableMetadata(BaseModel):
 class DatasetMetadata(BaseModel):
     """Model for dataset metadata."""
 
-    schema_name: str = Field(description="Schema name in UC")
+    schema_name: str = Field(description="Schema name in Unity Catalog")
     tables: list[TableMetadata] = Field(description="Target table names")
 
 
