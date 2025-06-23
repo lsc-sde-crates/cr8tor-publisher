@@ -28,13 +28,13 @@ app.add_exception_handler(
 
 @app.post("/metadata/project")
 async def metadata_project(
-    access_payload: schema.DataAccessContract,
+    payload: schema.DataAccessContract,
     _: auth.AuthDependency,
 ) -> schema.SuccessResponse:
     """Endpoint to obtain the metadata from the source database.
 
     Args:
-        access_payload: Endpoint accepts 'access' file from ro-crate, in json format
+        payload: Endpoint accepts 'access' file from ro-crate, in json format
         _: Authentication dependency
 
     Returns:
@@ -42,13 +42,16 @@ async def metadata_project(
         On Failure, returns the error message
 
     """
-    log = config.setup_logger(f"MetadataService Project {access_payload.project_name}")
+    log = config.setup_logger(f"MetadataService Project {payload.project_name}")
     log.info("Obtaining metadata for the requested project...")
-    log.info("Project: %s", access_payload.project_name)
-    log.info("Project start time: %s", access_payload.project_start_time)
-    log.info("Project destination: %s", access_payload.destination_type)
+    log.info("Project: %s", payload.project_name)
+    log.info("Project start time: %s", payload.project_start_time)
+    log.info("Project source type: %s", payload.source.type)
+    log.info("Project destination name: %s", payload.destination.name)
+    log.info("Project destination type: %s", payload.destination.type)
+    log.info("Project destination format: %s", payload.destination.format)
 
-    res = await metadata_extract.process_metadata_request(access_payload, log)
+    res = await metadata_extract.process_metadata_request(payload, log)
     return schema.SuccessResponse(
         status="success",
         payload=res,

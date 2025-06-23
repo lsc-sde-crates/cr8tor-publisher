@@ -33,7 +33,7 @@ async def validation_exception_handler(
 
     error_response = schema.ErrorResponse(
         status="error",
-        payload={"detail": detail_msg},
+        payload={"detail": log.name + ": " + detail_msg},
     )
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -47,7 +47,7 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> JSONRe
 
     error_response = schema.ErrorResponse(
         status="error",
-        payload={"detail": exc.detail},
+        payload={"detail": log.name + ": " + exc.detail},
     )
 
     return JSONResponse(
@@ -63,7 +63,7 @@ async def global_exception_handler(request: Request, exc: Exception) -> JSONResp
 
     error_response = schema.ErrorResponse(
         status="error",
-        payload={"detail": " ".join(map(str, exc.args))},
+        payload={"detail": log.name + ": " + " ".join(map(str, exc.args))},
     )
 
     return JSONResponse(
@@ -81,7 +81,9 @@ async def starlette_http_exception_handler(
 
     error_response = schema.ErrorResponse(
         status="error",
-        payload={"detail": f"Url: {request.url}. Error: {exc.detail}"},
+        payload={
+            "detail": log.name + ": " + f"Url: {request.url}. Error: {exc.detail}"
+        },
     )
 
     return JSONResponse(
