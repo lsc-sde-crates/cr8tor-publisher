@@ -1,0 +1,31 @@
+name: Run unit tests
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [opened, edited, reopened, ready_for_review]
+    branches:
+      - main
+
+jobs:
+  test-services:
+    runs-on: ubuntu-latest
+    name: Test ${{ matrix.service }}
+    strategy:
+      matrix:
+        service: [publish-service, metadata-service, approval-service]
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.5.16"
+      - name: Test Service
+        working-directory: ${{ matrix.service }}
+        run: |
+          uv run pytest
