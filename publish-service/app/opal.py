@@ -38,14 +38,14 @@ class Opal:
         """Context manager entry."""
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb) -> bool:
+    def __exit__(self, exc_type, exc_val, exc_tb) -> bool:  # noqa: ANN001
         """Context manager exit."""
         if self.client:
             self.client.close()  # or whatever cleanup method your client has
         # Return False to propagate any exception, or True to suppress it
         return False
 
-    def create_project(self, project_name: str) -> None:
+    def create_project(self, project_name: str) -> str:
         """Create project if it doesn't exist."""
         if not ProjectService(self.client).get_project(project_name):
             self.log.info("Creating new Opal project '%s'", project_name)
@@ -59,8 +59,9 @@ class Opal:
             )
         else:
             self.log.info("Opal - Project '%s' already exists", project_name)
+        return project_name
 
-    def create_group(self, group_name: str) -> None:
+    def create_group(self, group_name: str) -> str:
         """Create group if it doesn't exist."""
         try:
             GroupService(self.client).get_group(group_name)
@@ -85,6 +86,7 @@ class Opal:
                 groups=default_user["groups"],
                 disabled=not default_user.get("enabled", True),
             )
+        return group_name
 
     def add_group_to_permissions(self, group_name: str) -> None:
         """Add group to DataSHIELD permissions."""
@@ -106,7 +108,7 @@ class Opal:
         tables_list: list[dict],
         resource_username: str,
         resource_password: str,
-    ) -> None:
+    ) -> list[str]:
         """Create project resources."""
         response = (
             RESTService(self.client)
@@ -116,12 +118,14 @@ class Opal:
         )
         response = response.from_json()
         existing_resources = [res["name"] for res in response]
+        resource_names = []
         for table_info in tables_list:
             table_name = table_info.get("name", "default_table")
             schema_name = table_info.get("schema", "default_schema")
             resource_type = "postgresql"
             resource_name = f"tre_{resource_type}_{schema_name}_{table_name}"
             if resource_name in existing_resources:
+                resource_names.append(resource_name)
                 continue
             self.log.info("Opal - Creating project resource: %s", resource_name)
             resource_config = {
@@ -154,6 +158,8 @@ class Opal:
             ).content_type_json().resource(
                 f"/project/{project_name}/resources",
             ).content(json.dumps(resource_config)).send()
+            resource_names.append(resource_name)
+        return resource_names
 
     def set_resources_permissions(
         self,

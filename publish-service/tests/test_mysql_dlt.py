@@ -6,7 +6,7 @@ import pytest
 
 from app.config import logging
 from app.core import DLTDataRetriever
-from app.schema import DataPackageContract
+from cr8tor.core.schema import DataContractTransferRequest
 
 
 class TestDLTDataRetriever:
@@ -15,7 +15,7 @@ class TestDLTDataRetriever:
     @pytest.fixture(autouse=True)
     def setup(self) -> None:
         """Set up the test case with necessary data and objects."""
-        self.access_payload = DataPackageContract(
+        self.access_payload = DataContractTransferRequest(
             project_name="test_project",
             project_start_time="20250205_010101",
             destination={
@@ -33,7 +33,7 @@ class TestDLTDataRetriever:
                     "password_key": "sqlpasswordsecretname",
                 },
             },
-            metadata={
+            dataset={
                 "schema_name": "Rfam",
                 "tables": [
                     {

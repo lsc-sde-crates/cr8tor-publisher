@@ -3,6 +3,7 @@
 
 from typing import Any
 
+from cr8tor.core import schema as cr8_schema
 from fastapi import FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
@@ -28,7 +29,7 @@ app.add_exception_handler(
 
 @app.post("/data-publish/validate", response_model=schema.SuccessResponse)
 async def datapublish_validate(
-    payload: schema.ValidationContract,
+    payload: cr8_schema.DataContractSourceAccessRequest,
     _: auth.AuthDependency,
 ) -> schema.SuccessResponse:
     """Publish Service Endpoint which validates source and destination existence.
@@ -60,7 +61,7 @@ async def datapublish_validate(
 
 @app.post("/data-publish/package", response_model=schema.SuccessResponse)
 async def datapublish_package(
-    payload: schema.DataPackageContract,
+    payload: cr8_schema.DataContractTransferRequest,
     _: auth.AuthDependency,
 ) -> schema.SuccessResponse:
     """Publish Service Endpoint which retrieves the data from the source system.
@@ -92,7 +93,7 @@ async def datapublish_package(
 
 @app.post("/data-publish/publish", response_model=schema.SuccessResponse)
 async def datapublish_publish(
-    payload: schema.DataPublishContract,
+    payload: cr8_schema.DataContractPublishRequest,
     _: auth.AuthDependency,
 ) -> schema.SuccessResponse:
     """Publish Service Endpoint which publishes the data to target storage account.

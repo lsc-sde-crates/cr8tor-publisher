@@ -8,8 +8,7 @@ from itertools import chain
 from pathlib import Path
 
 import sqlalchemy.types as sqltypes
-
-from . import schema
+from cr8tor.core import schema as cr8_schema
 
 # Data files will be stored in the following folder structure:
 # {storage_account_name}/{staging/production container}/{project_name}
@@ -95,7 +94,7 @@ DLTHUB_DATATYPE_EXTRA_MAPPING = {
     "DATETIME2": sqltypes.DateTime,
     "DATETIMEOFFSET": sqltypes.DateTime,
     "SMALLDATETIME": sqltypes.DateTime,
-    # UniqueIdentifier (GUID)
+    # UniqueIdentifier (GUID)  # noqa: ERA001
     "UNIQUEIDENTIFIER": sqltypes.UUID,
     # XML type
     "XML": sqltypes.TEXT,
@@ -110,15 +109,17 @@ DLTHUB_DATATYPE_EXTRA_MAPPING = {
 
 
 def get_target_paths(
-    project: schema.DataPublishContract,
+    project: cr8_schema.DataContractPublishRequest,
 ) -> tuple[Path, Path, Path, Path, Path]:
     """Get the target paths for staging and production.
 
+    Creates staging and production subdirectories if they don't exist.
+
     Args:
-        payload (schema.DataPublishContract): The data publish contract containing project details.
+        destination_name (str): The name of the destination (e.g., 'LSC', 'NW')
 
     Returns:
-        tuple[Path, Path, Path]: The staging target path, production target path, and storage mount path.
+        tuple: A tuple containing (staging_path, production_path) or (None, None) if not found
 
     """
     if project.destination.type != "filestore":
@@ -128,10 +129,15 @@ def get_target_paths(
     # Ensure the destination name is in uppercase
     destination_name = project.destination.name.upper()
 
+    env_var_name = f"TARGET_STORAGE_ACCOUNT_{destination_name}_SDE_MNT_PATH"
+    base_path = os.getenv(env_var_name)
+
+    if not base_path:
+        error_msg = f"Environment variable {env_var_name} not set or empty."
+        raise ValueError(error_msg)
+
     # Determine target storage location
-    storage_mount_path = Path(
-        os.getenv(f"TARGET_STORAGE_ACCOUNT_{destination_name}_SDE_MNT_PATH"),
-    ).resolve()
+    storage_mount_path = Path(base_path).resolve()
     staging_container = storage_mount_path / "staging"
     production_container = storage_mount_path / "production"
 
