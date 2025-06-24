@@ -313,7 +313,7 @@ wheels = [
 [[package]]
 name = "cr8tor"
 version = "0.1.0"
-source = { git = "https://github.com/lsc-sde-crates/cr8tor.git?branch=main#305906e7ce0bc2c8f17dfc85c0011197e32e895e" }
+source = { git = "https://github.com/lsc-sde-crates/cr8tor.git?branch=main#33d80f9ce3c89cd69d51f961c6338dd362b888a9" }
 dependencies = [
     { name = "bagit" },
     { name = "cookiecutter" },
