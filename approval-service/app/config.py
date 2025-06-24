@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 """Contains the configuration settings for the FastAPI application."""
 
+import logging
 import os
 from functools import lru_cache
 from pathlib import Path
-from typing import Annotated
-
-import logging
 from sys import stdout
+from typing import Annotated
 
 from fastapi import Depends, HTTPException, status
 from pydantic import Field, SecretStr
@@ -58,6 +57,7 @@ def get_settings() -> Settings:
 
 SettingsDependency = Annotated[Settings, Depends(get_settings)]
 
+
 # Configure logging
 def setup_logger(name: str) -> logging.Logger:
     """Set up a logger with the specified name.
@@ -74,6 +74,6 @@ def setup_logger(name: str) -> logging.Logger:
     formatter = logging.Formatter("[%(asctime)s] %(name)s [%(levelname)s] %(message)s")
     handler.setFormatter(formatter)
 
-    logger = logging.Logger(name)
+    logger = logging.getLogger(name)
     logger.addHandler(handler)
     return logger

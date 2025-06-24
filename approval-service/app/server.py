@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Contains the FastAPI application and its endpoints."""
 
 import json
