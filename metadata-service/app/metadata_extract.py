@@ -3,22 +3,23 @@
 
 from typing import Any
 
+from cr8tor.core import schema as cr8_schema
 from fastapi import HTTPException, status
 from sqlalchemy import create_engine, inspect
 
-from . import config, databricks, schema
+from . import config, databricks
 
 settings = config.get_settings()
 
 
 async def process_metadata_request(
-    access: schema.DataAccessContract,
+    access: cr8_schema.DataContractTransferRequest,
     log: config.logging.Logger,
 ) -> dict[str, Any]:
     """Process the metadata request based on the access details.
 
     Args:
-        access: DataAccessContract containing source and credentials.
+        access: DataContractTransferRequest containing source and credentials.
 
     Returns:
         A dictionary containing the metadata.
@@ -39,7 +40,7 @@ async def process_metadata_request(
 
 
 def get_metadata_sqlalchemy(
-    access: schema.DataAccessContract,
+    access: cr8_schema.DataContractTransferRequest,
     log: config.logging.Logger,
 ) -> dict[str, Any]:
     """Retrieve metadata from the SQL Alchemy source."""
@@ -104,7 +105,7 @@ def get_metadata_sqlalchemy(
 
             # Extract column metadata
             column_metadata_list = [
-                schema.ColumnMetadata(
+                cr8_schema.ColumnMetadata(
                     name=column.get("name", "unknown_column"),
                     description=column.get("comment", ""),
                     datatype=str(column.get("type", "")),
@@ -116,15 +117,15 @@ def get_metadata_sqlalchemy(
 
             # Add the table metadata
             table_metadata_list.append(
-                schema.TableMetadata(
+                cr8_schema.TableMetadata(
                     name=table_name,
                     description=table_comment["text"],
                     columns=column_metadata_list,
                 ),
             )
 
-        dataset_metadata = schema.DatasetMetadata(
-            name="default_name",  # TODO: Revise this
+        dataset_metadata = cr8_schema.DatasetMetadata(
+            name="default_name",  # TODO: Revise this  # noqa: FIX002, TD002, TD003
             description="",
             catalog=access.source.database,
             schema_name=schema_name,
@@ -146,7 +147,7 @@ def get_metadata_sqlalchemy(
 
 
 def get_source_connection_string(
-    source: schema.SourceConnection,
+    source: cr8_schema.SourceConnection,
 ) -> str:
     """Construct connection string based on source type."""
     if source.type == "databrickssql":

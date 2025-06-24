@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Functions related to Databricks API."""
 
 import base64
@@ -5,9 +6,10 @@ import json
 from typing import Any
 
 import requests
+from cr8tor.core import schema as cr8_schema
 from fastapi import HTTPException, status
 
-from . import config, schema
+from . import config
 
 settings = config.get_settings()
 
@@ -45,8 +47,8 @@ def handle_restapi_request(
     headers: dict,
     params: dict,
     listkey: str = "",
-    paginate: bool = False,
-) -> Any:
+    paginate: bool = False,  # noqa: FBT001, FBT002
+) -> Any:  # noqa: ANN401
     """Handle the request to the Databricks REST API."""
     all_data = []
     next_page_token = None
@@ -76,10 +78,6 @@ def handle_restapi_request(
             else:
                 message = response.reason
 
-            print("Databricks API error:", response.status_code, message)
-            print("Databricks API url: ", getattr(response, "url", ""))
-            print("Databricks API body: ", getattr(response.request, "body", ""))
-
             raise HTTPException(
                 status_code=response.status_code,
                 detail="Databricks API error: " + message,
@@ -89,8 +87,8 @@ def handle_restapi_request(
 
 
 def get_metadata_restapi(
-    requested_dataset: schema.DatasetMetadata,
-    source: schema.DatabricksSourceConnection,
+    requested_dataset: cr8_schema.DatasetMetadata,
+    source: cr8_schema.DatabricksSourceConnection,
     log: config.logging.Logger,
 ) -> dict[str, Any]:
     """Retrieve metadata from the Databricks REST API."""
@@ -144,7 +142,7 @@ def get_metadata_restapi(
 
             # Extract column metadata
             column_metadata_list = [
-                schema.ColumnMetadata(
+                cr8_schema.ColumnMetadata(
                     name=column.get("name", "unknown_column"),
                     description=column.get("comment", ""),
                     datatype=column.get("type_name", ""),
@@ -156,15 +154,15 @@ def get_metadata_restapi(
 
             # Add the table metadata
             table_metadata_list.append(
-                schema.TableMetadata(
+                cr8_schema.TableMetadata(
                     name=table_name,
                     description=table_description,
                     columns=column_metadata_list,
                 ),
             )
 
-        dataset_metadata = schema.DatasetMetadata(
-            name="default_name",  # TODO: Revise this
+        dataset_metadata = cr8_schema.DatasetMetadata(
+            name="default_name",  # TODO: Revise this  # noqa: FIX002, TD002, TD003
             description=schema_details.get("comment", ""),
             catalog=schema_details.get("catalog_name", ""),
             schema_name=schema_details.get("name", ""),
@@ -174,7 +172,6 @@ def get_metadata_restapi(
         return dataset_metadata.model_dump()
 
     except Exception as exp:
-        log.exception(str(exp))
         raise HTTPException(
             status_code=getattr(
                 exp,

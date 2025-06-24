@@ -3,6 +3,7 @@
 
 from typing import Any
 
+from cr8tor.core import schema as cr8_schema
 from fastapi import FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
@@ -28,7 +29,7 @@ app.add_exception_handler(
 
 @app.post("/metadata/project")
 async def metadata_project(
-    payload: schema.DataAccessContract,
+    payload: cr8_schema.DataContractTransferRequest,
     _: auth.AuthDependency,
 ) -> schema.SuccessResponse:
     """Endpoint to obtain the metadata from the source database.
