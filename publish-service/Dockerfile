@@ -12,18 +12,6 @@ WORKDIR /home/appuser
 # Change ownership of the application directory
 RUN chown -R appuser:appuser /home/appuser
 
-# Target storage accounts where the output data will be stored are mounted at K8S pod level
-#  We need to set the environment variables to the mounted paths
-# Detect TARGET_STORAGE_ACCOUNT_%_SDE_MNT_PATH environment variables and create subfolders
-RUN for var in $(env | grep '^TARGET_STORAGE_ACCOUNT_.*_SDE_MNT_PATH=' | cut -d'=' -f1); do \
-        path=$(eval echo \$$var); \
-        if [ ! -z "$path" ]; then \
-            echo "Processing $var with path: $path"; \
-            mkdir -p "$path/staging" "$path/production"; \
-            chown -R appuser:appuser "$path/staging" "$path/production"; \
-        fi; \
-    done
-
 # Keyvault secrets are mounted at K8S pod level
 ENV SECRETS_MNT_PATH="./secrets"
 

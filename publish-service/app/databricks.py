@@ -46,8 +46,8 @@ def handle_restapi_request(
     headers: dict,
     params: dict,
     listkey: str = "",
-    paginate: bool = False,
-) -> Any:
+    paginate: bool = False,  # noqa: FBT001, FBT002
+) -> Any:  # noqa: ANN401
     """Handle the request to the Databricks REST API."""
     all_data = []
     next_page_token = None
@@ -76,10 +76,6 @@ def handle_restapi_request(
                     message = response.reason + response.text
             else:
                 message = response.reason
-
-            print("Databricks API error:", response.status_code, message)
-            print("Databricks API url: ", getattr(response, "url", ""))
-            print("Databricks API body: ", getattr(response.request, "body", ""))
 
             raise HTTPException(
                 status_code=response.status_code,

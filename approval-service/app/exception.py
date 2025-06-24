@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Contains the FastAPI exception handlers."""
 
 from fastapi import HTTPException, Request, status
@@ -12,7 +13,7 @@ log = config.setup_logger("ApprovalService")
 
 
 async def validation_exception_handler(
-    request: Request,
+    request: Request,  # noqa: ARG001
     exc: RequestValidationError,
 ) -> JSONResponse:
     """Handles validation errors and returns a custom JSON response."""
@@ -30,7 +31,7 @@ async def validation_exception_handler(
     )
 
 
-async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
+async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:  # noqa: ARG001
     """Handles all HTTPExceptions and returns a structured ErrorResponse."""
     log.exception("HTTPException: %s", exc.detail)
 
@@ -46,7 +47,7 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> JSONRe
 
 
 # Global Exception Handler (Catch-All)
-async def global_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+async def global_exception_handler(request: Request, exc: Exception) -> JSONResponse:  # noqa: ARG001
     """Handles all unhandled exceptions and returns a structured ErrorResponse."""
     log.exception("Unhandled error: %s", exc)
 

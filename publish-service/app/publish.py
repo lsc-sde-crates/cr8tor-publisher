@@ -6,18 +6,19 @@ import shutil
 from pathlib import Path
 
 from bagit import generate_manifest_lines
+from cr8tor.core import schema as cr8_schema
 
-from . import config, core, opal, schema, utils
+from . import config, core, opal, utils
 
 
 async def data_publish(
-    project_payload: schema.DataPublishContract,
+    project_payload: cr8_schema.DataContractPublishRequest,
     log: config.logging.Logger,
 ) -> dict:
     """Publishes data from staging to production storage account.
 
     Args:
-        project_payload (schema.DataPublishContract): The data publish contract containing necessary information.
+        project_payload (cr8_schema.DataContractPublishRequest): The data publish contract containing necessary information.
 
     Returns:
         dict: A dictionary containing the checksums of the published data.
@@ -34,7 +35,7 @@ async def data_publish(
 
 
 async def _publish_to_filestore(
-    project_payload: schema.DataPublishContract,
+    project_payload: cr8_schema.DataContractPublishRequest,
     log: config.logging.Logger,
 ) -> dict:
     """Publish data to filestore destination."""
@@ -140,7 +141,7 @@ def generate_checksums(path: Path) -> list:
 
 
 async def _publish_to_postgresql(
-    project_payload: schema.DataPublishContract,
+    project_payload: cr8_schema.DataContractPublishRequest,
     log: config.logging.Logger,
 ) -> dict:
     """Publish data to PostgreSQL destination."""
@@ -168,19 +169,33 @@ async def _publish_to_postgresql(
 
     try:
         group_name = f"{project_payload.project_name}_group"
-        opal_client.create_project(project_payload.project_name)
-        opal_client.create_group(group_name)
+        opal_project_name = opal_client.create_project(project_payload.project_name)
+        opal_group_name = opal_client.create_group(group_name)
         opal_client.add_group_to_permissions(group_name)
-        opal_client.create_resources(
+        opal_resources = opal_client.create_resources(
             project_payload.project_name,
             tables_list,
             os.getenv("DESTINATION_POSTGRESQL_OPAL_READONLY_USERNAME"),
             os.getenv("DESTINATION_POSTGRESQL_OPAL_READONLY_PASSWORD"),
         )
         opal_client.set_resources_permissions(project_payload.project_name, group_name)
+
+        # Build response with captured values
+        published_data = []
+        for i, table in enumerate(tables_list):
+            published_data.append(
+                {
+                    "postgresql_table_name": table["schema"] + "." + table["name"],
+                    "opal_resource_name": opal_resources[i]
+                    if isinstance(opal_resources, list)
+                    else str(opal_resources),
+                    "opal_project_name": opal_project_name,
+                    "opal_group_name": opal_group_name,
+                },
+            )
     except opal.HTTPError as e:
         msg = f"Opal module failure: {e.error} - {e.message}"
         log.exception("Opal module failure: %s", msg)
         raise RuntimeError(msg) from e
 
-    return {"data_published": "PostgreSQL and OPAL publication completed"}
+    return {"data_published": published_data}

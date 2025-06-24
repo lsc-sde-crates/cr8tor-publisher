@@ -1,5 +1,8 @@
 FROM python:3.12-slim
 
+# Install Git (required for fetching cr8tor from Git repositories)
+RUN apt-get update && apt-get install -y git
+
 # Create a non-root user and group
 RUN groupadd -r appuser && useradd -r -g appuser appuser
 

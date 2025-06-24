@@ -11,9 +11,14 @@ from . import config, schema
 
 log = config.setup_logger("PublishService")
 
+# Constants for location array length validation
+LOC_ARRAY_LENGTH_ONE = 1
+LOC_ARRAY_LENGTH_TWO = 2
+LOC_ARRAY_LENGTH_FOUR = 4
+
 
 async def validation_exception_handler(
-    request: Request,
+    request: Request,  # noqa: ARG001
     exc: RequestValidationError,
 ) -> JSONResponse:
     """Handles validation errors and returns a custom JSON response."""
@@ -28,17 +33,25 @@ async def validation_exception_handler(
         msg = msg.replace("Unable to extract tag using discriminator", "Missing key")
 
         # Apply custom logic for 'loc' formatting
-        if len(loc_array) == 1 and loc_array[0] != "body" and error_type == "missing":
+        if (
+            len(loc_array) == LOC_ARRAY_LENGTH_ONE
+            and loc_array[0] != "body"
+            and error_type == "missing"
+        ):
             # Single value, not 'body', type is 'missing'
             loc = str(loc_array[0])
         elif (
-            len(loc_array) == 2
+            len(loc_array) == LOC_ARRAY_LENGTH_TWO
             and loc_array[0] == "body"
             and error_type in ("missing", "union_tag_not_found")
         ):
             # Two values, first is 'body', type is 'missing' - use only second value
             loc = str(loc_array[1])
-        elif len(loc_array) == 4 and loc_array[0] == "body" and error_type == "missing":
+        elif (
+            len(loc_array) == LOC_ARRAY_LENGTH_FOUR
+            and loc_array[0] == "body"
+            and error_type == "missing"
+        ):
             # Four values, first is 'body', type is 'missing' - concatenate second and fourth
             loc = f"{loc_array[1]} -> {loc_array[3]}"
         else:
@@ -61,7 +74,7 @@ async def validation_exception_handler(
     )
 
 
-async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
+async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:  # noqa: ARG001
     """Handles all HTTPExceptions and returns a structured ErrorResponse."""
     log.exception("HTTPException: %s", exc.detail)
 
@@ -77,7 +90,7 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> JSONRe
 
 
 # Global Exception Handler (Catch-All)
-async def global_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+async def global_exception_handler(request: Request, exc: Exception) -> JSONResponse:  # noqa: ARG001
     """Handles all unhandled exceptions and returns a structured ErrorResponse."""
     log.exception("Unhandled error: %s", exc)
 

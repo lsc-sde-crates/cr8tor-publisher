@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Provides authentication utilities for the FastAPI application.
 
 It includes functions and dependencies for retrieving and validating API keys

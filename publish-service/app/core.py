@@ -11,10 +11,11 @@ from pathlib import Path
 
 import dlt
 import sqlalchemy.types as sqltypes
+from cr8tor.core import schema as cr8_schema  # noqa: TC002
 from dlt.sources.sql_database import sql_database
 from sqlalchemy import Column, MetaData, Table, create_engine, text
 
-from . import config, databricks, schema, utils
+from . import config, databricks, utils
 
 settings = config.get_settings()
 
@@ -24,7 +25,7 @@ class DLTDataRetriever:
 
     def __init__(
         self,
-        access_payload: schema.DataPackageContract,
+        access_payload: cr8_schema.DataContractTransferRequest,
         log: config.logging.Logger,
     ) -> None:
         """Initialize the DLTDataRetriever instance.
@@ -35,7 +36,7 @@ class DLTDataRetriever:
         self.log = log
         self.access_payload = access_payload
 
-        self.metadata = getattr(self.access_payload, "metadata", None)
+        self.dataset = getattr(self.access_payload, "dataset", None)
 
         self.project_name = access_payload.project_name
         self.project_start_time = access_payload.project_start_time
@@ -153,7 +154,7 @@ class DLTDataRetriever:
             url = (
                 f"{self.source.host_url}/api/2.1/unity-catalog/tables/"
                 f"{self.source.catalog}."
-                f"{self.metadata.schema_name}.{table_name}"
+                f"{self.dataset.schema_name}.{table_name}"
             )
             headers = {"Authorization": f"Bearer {self.access_token}"}
             table_data = databricks.handle_restapi_request(
@@ -189,7 +190,7 @@ class DLTDataRetriever:
             )
             return columns_dict, primary_key_list
         if self.source.type in ["mssql", "mysql", "postgresql"]:
-            schema_name = self.metadata.schema_name
+            schema_name = self.dataset.schema_name
             columns_dict = {}
             primary_key_list = []
 
@@ -238,11 +239,11 @@ class DLTDataRetriever:
         """Generate SQLAlchemy Metadata."""
         self.log.info("Generating SQLAlchemy Metadata...")
         self.requested_tables = (
-            list({table.name for table in self.metadata.tables}) or None
+            list({table.name for table in self.dataset.tables}) or None
         )
-        metadata_obj = MetaData(schema=self.metadata.schema_name)
+        metadata_obj = MetaData(schema=self.dataset.schema_name)
 
-        for table_metadata in self.metadata.tables:
+        for table_metadata in self.dataset.tables:
             # Expected columns_dict structure: {"column_name": {<column details struct, including 'data_type', 'is_nullable'>}}
             # Expected primary_key_list structure: ["column_name1", "column_name2"]
             columns_dict, primary_key_list = self._get_table_metadata(
@@ -260,7 +261,7 @@ class DLTDataRetriever:
 
     def _generate_sqlalchemy_columns(
         self,
-        table_metadata: schema.TableMetadata,
+        table_metadata: cr8_schema.TableMetadata,
         columns_dict: dict,
         primary_key_list: list,
         metadata_obj: MetaData,
@@ -338,7 +339,7 @@ class DLTDataRetriever:
         self.source = sql_database(
             self.engine,
             chunk_size=200000,
-            schema=self.metadata.schema_name,
+            schema=self.dataset.schema_name,
             table_names=self.requested_tables,
             metadata=metadata_obj,
             reflection_level="full_with_precision",
@@ -367,7 +368,7 @@ class DLTDataRetriever:
                 str(staging_target_path / "database.duckdb"),
             )
             self.loader_file_format = None
-            dataset_name = self.metadata.schema_name
+            dataset_name = self.dataset.schema_name
         elif self.destination.type == "filestore" and self.destination.format == "csv":
             # Filesystem dlt.destination creates pipeline state tables/files (_dlt_pipeline_state, _dlt_loads, _dlt_version)
             # alongside the data files in the target path.
@@ -377,7 +378,7 @@ class DLTDataRetriever:
                 bucket_url=str(staging_target_path),
             )
             self.loader_file_format = "csv"
-            dataset_name = self.metadata.schema_name
+            dataset_name = self.dataset.schema_name
         elif self.destination.type == "postgresql":
             # List of supported destinations by DLTHub: ~/.venv/lib/python3.12/site-packages/dlt/destinations/__init__.py
             self.loader_file_format = None
@@ -388,7 +389,7 @@ class DLTDataRetriever:
                 + "_"
                 + self.project_start_time
                 + "_"
-                + self.metadata.schema_name,
+                + self.dataset.schema_name,
             ).lower()
             self.dlt_destination = dlt.destinations.postgres(
                 self._get_destination_connection_string(),
@@ -396,7 +397,7 @@ class DLTDataRetriever:
         else:
             self.loader_file_format = None
             self.dlt_destination = self.destination.type
-            dataset_name = self.metadata.schema_name
+            dataset_name = self.dataset.schema_name
 
         # Initialize DLT pipeline
         self.pipeline = dlt.pipeline(
@@ -538,7 +539,7 @@ class DLTDataRetriever:
 
 
 async def dlt_data_retrieve(
-    access_payload: schema.DataPackageContract,
+    access_payload: cr8_schema.DataContractTransferRequest,
     log: config.logging.Logger,
 ) -> dict:
     """Entry point to retrieve data using DLT."""
@@ -547,7 +548,7 @@ async def dlt_data_retrieve(
 
 
 async def dlt_validate_source_destination(
-    access_payload: schema.ValidationContract,
+    access_payload: cr8_schema.DataContractSourceAccessRequest,
     log: config.logging.Logger,
 ) -> dict:
     """Function to validate connections to source and destination."""

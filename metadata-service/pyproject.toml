@@ -5,6 +5,7 @@ description = "Python FastAPI app to serve as Publish Service for CR8TOR project
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "cr8tor",
     "fastapi>=0.115.6",
     "psycopg2-binary>=2.9.10",
     "pydantic-settings>=2.7.1",
@@ -21,3 +22,6 @@ dev = [
     "pytest>=8.3.4",
     "ruff>=0.9.1",
 ]
+
+[tool.uv.sources]
+cr8tor = { git = "https://github.com/lsc-sde-crates/cr8tor.git", branch = "main" }
