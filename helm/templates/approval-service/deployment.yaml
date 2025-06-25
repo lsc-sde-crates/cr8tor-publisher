@@ -26,12 +26,16 @@ spec:
       containers:
       - name: controller
         image: {{ .Values.approvalService.image }}
+        envFrom:
+        - configMapRef:
+            name: cr8tor-config
+        
         env:
         - name: NAMESPACE
           value: {{ .Release.Namespace }}
 
         - name: KEYVAULT_SECRETS_MNT_PATH
-          value: {{ .Values.approvalService.config.secretsMountPath }}
+          value: {{ .Values.approvalService.config.secrets.mountPath }}
 
         - name: METADATA_CONTAINER_NAME
           value: {{ include "metadata.name" . }}

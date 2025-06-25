@@ -12,7 +12,11 @@ approvalService:
       secretName: approval-service
 
   volumeMounts: []
-  env: []
+  env: 
+    - name: APP_NAME
+      value: "CR8TOR - Approval Service API"
+    - name: ENVIRONMENT
+      value: "kubernetes"
   resources: {}
 
 metadataService:
@@ -28,7 +32,11 @@ metadataService:
     secret:
       secretName: metadata-service
   volumeMounts: []
-  env: []
+  env: 
+    - name: APP_NAME
+      value: "CR8TOR - Metadata Service API"
+    - name: ENVIRONMENT
+      value: "kubernetes"
   resources: {}
 
 publishService:
@@ -45,7 +53,42 @@ publishService:
     secret:
       secretName: publish-service
   volumeMounts: []
-  env: []
+  env: 
+    - name: DESTINATION_POSTGRESQL_HOST
+      value: "datashield-postgres-cluster-rw.datashield.svc.cluster.local"
+    - name: DESTINATION_POSTGRESQL_DATABASE
+      value: "opal-resource-db"
+    - name: DESTINATION_POSTGRESQL_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: opal-resource-db-secret
+          key: username
+    - name: DESTINATION_POSTGRESQL_PASSWORD_SECRET_NAME
+      valueFrom:
+        secretKeyRef:
+          name: opal-resource-db-secret
+          key: password
+    - name: DESTINATION_POSTGRESQL_PORT
+      value: "5432"
+    - name: DESTINATION_POSTGRESQL_OPAL_READONLY_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: opal-resource-db-secret
+          key: username
+    - name: DESTINATION_POSTGRESQL_OPAL_READONLY_PASSWORD_SECRET_NAME
+      valueFrom:
+        secretKeyRef:
+          name: opal-resource-db-secret
+          key: password
+    - name: DESTINATION_OPAL_HOST
+      value: "http://host.docker.internal:8880"
+    - name: DESTINATION_OPAL_USERNAME
+      value: "administrator"
+    - name: DESTINATION_OPAL_PASSWORD_SECRET_NAME
+      valueFrom:
+        secretKeyRef:
+          name: datashield-secrets
+          key: opal-administrator-password
   resources: {}
 
 service:
