@@ -82,6 +82,8 @@ publishService:
           key: password
     - name: DESTINATION_OPAL_HOST
       value: "http://host.docker.internal:8880"
+    - name: DESTINATION_OPAL_NO_SSL_VERIFY
+      value: "false"
     - name: DESTINATION_OPAL_USERNAME
       value: "administrator"
     - name: DESTINATION_OPAL_PASSWORD_SECRET_NAME
