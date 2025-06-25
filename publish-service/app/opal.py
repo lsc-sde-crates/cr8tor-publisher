@@ -33,6 +33,7 @@ class Opal:
             server=os.getenv("DESTINATION_OPAL_HOST"),
             user=os.getenv("DESTINATION_OPAL_USERNAME"),
             password=settings.get_secret(os.getenv("DESTINATION_OPAL_PASSWORD_SECRET_NAME")).get_secret_value(),
+            no_ssl_verify=os.getenv("DESTINATION_OPAL_NO_SSL_VERIFY", "false").lower() == "true",
         )
 
     def __enter__(self) -> Self:
