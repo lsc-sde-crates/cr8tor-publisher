@@ -26,12 +26,16 @@ spec:
       containers:
       - name: controller
         image: {{ .Values.metadataService.image }}
+        envFrom:
+        - configMapRef:
+            name: cr8tor-config
+        
         env:
         - name: NAMESPACE
           value: {{ .Release.Namespace }}
 
         - name: KEYVAULT_SECRETS_MNT_PATH
-          value: {{ .Values.metadataService.config.secretsMountPath }}
+          value: {{ .Values.metadataService.config.secrets.mountPath }}
 
         {{ if .Values.metadataService.env }}
         {{ toYaml .Values.metadataService.env | nindent 8 }}

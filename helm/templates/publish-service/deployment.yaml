@@ -37,6 +37,10 @@ spec:
       containers:
       - name: controller
         image: {{ .Values.publishService.image }}
+        envFrom:
+        - configMapRef:
+            name: cr8tor-config
+        
         env:
         - name: NAMESPACE
           value: {{ .Release.Namespace }}
