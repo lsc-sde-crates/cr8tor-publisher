@@ -132,7 +132,7 @@ class DLTDataRetriever:
         host = os.getenv(f"DESTINATION_{dstype}_HOST")
         database = os.getenv(f"DESTINATION_{dstype}_DATABASE")
         username = os.getenv(f"DESTINATION_{dstype}_USERNAME")
-        password = os.getenv(f"DESTINATION_{dstype}_PASSWORD")
+        password = settings.get_secret(os.getenv(f"DESTINATION_{dstype}_PASSWORD_SECRET_NAME")).get_secret_value()
         if self.destination.type == "postgresql":
             port = os.getenv(f"DESTINATION_{dstype}_PORT", "5432")
             driver = "postgresql"

@@ -20,6 +20,7 @@ from typing_extensions import Self
 
 from . import config, utils
 
+settings = config.get_settings()
 
 class Opal:
     """Class for interacting with Obiba Opal."""
@@ -31,7 +32,7 @@ class Opal:
         self.client = OpalClient.buildWithAuthentication(
             server=os.getenv("DESTINATION_OPAL_HOST"),
             user=os.getenv("DESTINATION_OPAL_USERNAME"),
-            password=os.getenv("DESTINATION_OPAL_PASSWORD"),
+            password=settings.get_secret(os.getenv("DESTINATION_OPAL_PASSWORD_SECRET_NAME")).get_secret_value(),
         )
 
     def __enter__(self) -> Self:

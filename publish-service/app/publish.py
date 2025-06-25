@@ -10,6 +10,7 @@ from cr8tor.core import schema as cr8_schema
 
 from . import config, core, opal, utils
 
+settings = config.get_settings()
 
 async def data_publish(
     project_payload: cr8_schema.DataContractPublishRequest,
@@ -176,7 +177,7 @@ async def _publish_to_postgresql(
             project_payload.project_name,
             tables_list,
             os.getenv("DESTINATION_POSTGRESQL_OPAL_READONLY_USERNAME"),
-            os.getenv("DESTINATION_POSTGRESQL_OPAL_READONLY_PASSWORD"),
+            settings.get_secret(os.getenv("DESTINATION_POSTGRESQL_OPAL_READONLY_PASSWORD_SECRET_NAME")).get_secret_value(),
         )
         opal_client.set_resources_permissions(project_payload.project_name, group_name)
 
