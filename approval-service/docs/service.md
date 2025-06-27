@@ -17,14 +17,11 @@ The Approval Service is based on [FastAPI](https://fastapi.tiangolo.com/) applic
 
 The microservice has the following endpoints, each serving a specific function:
 
-1. POST project/validate - Forwards call to Metadata Services at project endpoint. Returns the payload with the metadata details (available tables, columns, descriptions, data types, etc) for the request datasets.
-   [Example request and response](../../metadata-service/docs/service.md#metadata-service)
+1. POST project/validate - Forwards call to Publish and Metadata Services to validate connections and retrieve metadata. Returns the payload with the metadata details (available tables, columns, descriptions, data types, etc) for the request datasets.
 
 2. POST project/package - Forwards call to Publish Services at package endpoint. Returns the payload with the details of created data files in the staging container.
-   [Example request and response](../../publish-service/docs/service.md#publish-service)
 
 3. POST project/publish - Forwards call to Publish Services at publish endpoint. Returns the payload with the details of data files moved to production container and the hash values calculated on them (using BagIt library).
-   [Example request and response](../../publish-service/docs/service.md#publish-service)
 
 ## Configuration
 

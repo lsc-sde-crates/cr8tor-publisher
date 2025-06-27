@@ -17,42 +17,6 @@ The Metadata Service is based on [FastAPI](https://fastapi.tiangolo.com/) applic
 
 The microservice has the following endpoints:
 
-- POST metadata/validate - validates the source and destination connections by checking if connections can be established.
-   - **Example Request:**
-
-     ```json
-     {
-       "project_name": "Pr004",
-       "project_start_time": "20250205_010101",
-       "destination_type": "LSC",
-       "destination_format": "duckdb",
-       "source": {
-         "name": "MyDatabricksConnection",
-         "type": "DatabricksSQL",
-         "host_url": "https://my-databricks-workspace.azuredatabricks.net",
-         "http_path": "/sql/1.0/warehouses/bd1395d4652aa599",
-         "port": 443,
-         "catalog": "catalog_name"
-       },
-       "credentials": {
-         "provider": "AzureKeyVault",
-         "spn_clientid": "databricksspnclientid",
-         "spn_secret": "databricksspnsecret"
-      }
-     }  
-     
-     ```
-   - **Example Response:**
-
-     ```json
-     {
-         "status": "success",
-         "payload": {
-            "validation_status": "success"
-        }
-     }
-     ```
-
 - POST metadata/project
 
    - **Example Request:**
@@ -61,20 +25,22 @@ The microservice has the following endpoints:
      {
        "project_name": "Pr004",
        "project_start_time": "20250205_010101",
-       "destination_type": "LSC",
-       "destination_format": "duckdb",
+       "destination": {
+         "name": "LSC",
+         "type": "filestore",
+         "format": "duckdb"
+       },
        "source": {
-         "name": "MyDatabricksConnection",
-         "type": "DatabricksSQL",
+         "type": "databrickssql",
          "host_url": "https://my-databricks-workspace.azuredatabricks.net",
          "http_path": "/sql/1.0/warehouses/bd1395d4652aa599",
          "port": 443,
-         "catalog": "catalog_name"
-       },
-       "credentials": {
-         "provider": "AzureKeyVault",
-         "spn_clientid": "databricksspnclientid",
-         "spn_secret": "databricksspnsecret"
+         "catalog": "catalog_name",
+         "credentials": {
+           "provider": "AzureKeyVault",
+           "spn_clientid": "databricksspnclientid",
+           "spn_secret": "databricksspnsecret"
+         }
        },
        "dataset": {
          "schema_name": "example_schema_name",
@@ -173,7 +139,7 @@ See the main guide for the microservices, [located here](../../docs/services.md)
 
 Environment variables required:
 
-- `SECRETS_MNT_PATH`, default = ./secrets
+- `SECRETS_MNT_PATH`, default = `./secrets`
   Path to the folder where secrets are mounted.
 
 The authentication is static API key based and requires a secret:

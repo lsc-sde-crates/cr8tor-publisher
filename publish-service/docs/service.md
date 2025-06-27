@@ -17,7 +17,7 @@ The Publish Service is based on [FastAPI](https://fastapi.tiangolo.com/) applica
 
 The microservice has the following endpoints, each serving a specific function:
 
-1. POST data-publish/package - Packages the data from the source database into a staging container. Returns the payload with the details of created data files in the staging container.
+1. POST data-publish/validate - Validates the source and destination connections by checking if connections can be established.
 
    - **Example Request:**
 
@@ -25,22 +25,63 @@ The microservice has the following endpoints, each serving a specific function:
      {
        "project_name": "Pr004",
        "project_start_time": "20250205_010101",
-       "destination_type": "LSC",
-       "destination_format": "duckdb",
+       "destination": {
+         "name": "LSC",
+         "type": "filestore",
+         "format": "duckdb"
+       },
        "source": {
-         "name": "MyDatabricksConnection",
-         "type": "DatabricksSQL",
+         "type": "databrickssql",
          "host_url": "https://my-databricks-workspace.azuredatabricks.net",
          "http_path": "/sql/1.0/warehouses/bd1395d4652aa599",
          "port": 443,
-         "catalog": "catalog_name"
+         "catalog": "catalog_name",
+         "credentials": {
+           "provider": "AzureKeyVault",
+           "spn_clientid": "databricksspnclientid",
+           "spn_secret": "databricksspnsecret"
+         }
+       }
+     }
+     ```
+
+   - **Example Response:**
+
+     ```json
+     {
+         "status": "success",
+         "payload": {
+            "validation_status": "success"
+        }
+     }
+     ```
+
+2. POST data-publish/package - Packages the data from the source database into a staging container. Returns the payload with the details of created data files in the staging container.
+
+   - **Example Request:**
+
+     ```json
+     {
+       "project_name": "Pr004",
+       "project_start_time": "20250205_010101",
+       "destination": {
+         "name": "LSC",
+         "type": "filestore",
+         "format": "duckdb"
        },
-       "credentials": {
-         "provider": "AzureKeyVault",
-         "spn_clientid": "databricksspnclientid",
-         "spn_secret": "databricksspnsecret"
+       "source": {
+         "type": "databrickssql",
+         "host_url": "https://my-databricks-workspace.azuredatabricks.net",
+         "http_path": "/sql/1.0/warehouses/bd1395d4652aa599",
+         "port": 443,
+         "catalog": "catalog_name",
+         "credentials": {
+           "provider": "AzureKeyVault",
+           "spn_clientid": "databricksspnclientid",
+           "spn_secret": "databricksspnsecret"
+         }
        },
-       "metadata": {
+       "dataset": {
          "schema_name": "example_schema_name",
          "tables": [
                  {
@@ -71,7 +112,6 @@ The microservice has the following endpoints, each serving a specific function:
              ]
         }
      }
-     
      ```
 
    - **Example Response:**
@@ -80,6 +120,7 @@ The microservice has the following endpoints, each serving a specific function:
      {
          "status": "success",
          "payload": {
+             "destination_type": "filestore",
              "data_retrieved": [
                  {
                      "file_path": "data/outputs/database.duckdb"
@@ -89,7 +130,7 @@ The microservice has the following endpoints, each serving a specific function:
      }
      ```
 
-2. POST data-publish/publish - Publishes the packaged data from the staging container to the production container.
+3. POST data-publish/publish - Publishes the packaged data from the staging container to the production container.
 
    - **Example Request:**
 
@@ -97,9 +138,12 @@ The microservice has the following endpoints, each serving a specific function:
      {
        "project_name": "Pr004",
        "project_start_time": "20250205_010101",
-       "destination_type": "LSC"
+       "destination": {
+         "name": "LSC",
+         "type": "filestore",
+         "format": "duckdb"
+       }
      }
-     
      ```
 
    - **Example Response:**
@@ -108,11 +152,12 @@ The microservice has the following endpoints, each serving a specific function:
      {
          "status": "success",
          "payload": {
+             "destination_type": "filestore",
              "data_published": [
                  {
-                "file_path": "data/outputs/database.duckdb",
-                "hash_value": "6ed6e817fb78953648324b0b9e44711bb55aa790e22e2353e8af6eae1f182bfdf10f88fc0e1a33c389cc3b73346dc513fde3fda594e3725ad1a3b568a55ff41c",
-                "total_bytes": 1585152
+                    "file_path": "data/outputs/database.duckdb",
+                    "hash_value": "6ed6e817fb78953648324b0b9e44711bb55aa790e22e2353e8af6eae1f182bfdf10f88fc0e1a33c389cc3b73346dc513fde3fda594e3725ad1a3b568a55ff41c",
+                    "total_bytes": 1585152
                  }
              ]
          }
@@ -135,8 +180,8 @@ Environment variables required:
   Path to target storage account where datasets for NW should be stored
 - `SECRETS_MNT_PATH`, default = `./secrets`
   Path to the folder where secrets are mounted.
-- `DLTHUB_PIPELINE_WORKING_DIR`, default = `/home/appuser/dlt/pipelines`.
-    DltHub Pipeline working directory where dltHub state files, logs and extracted data is temporarily stored. See <https://dlthub.com/docs/general-usage/pipeline#pipeline-working-directory>
+- `DLTHUB_PIPELINE_WORKING_DIR`, default = `/home/appuser/dlt/pipelines`
+  DltHub Pipeline working directory where dltHub state files, logs and extracted data is temporarily stored. See <https://dlthub.com/docs/general-usage/pipeline#pipeline-working-directory>
 
 The authentication is static API key based and requires a secret
 
